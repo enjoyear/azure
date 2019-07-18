@@ -2,3 +2,4 @@ rootProject.name = 'azure'
 
 include 'chen-mr-jobs'
 include 'chen-spark-jobs'
+include 'chen-util'
