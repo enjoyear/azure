@@ -114,8 +114,8 @@ public class EmailSender {
     HttpClient httpclient = HttpClients.createDefault();
 
     try {
-      URIBuilder builder = new URIBuilder("https://email-notification-lambda.azurewebsites.net/chen/email/send");
-      //URIBuilder builder = new URIBuilder("https://email-notification-lambda2.azurewebsites.net/api/HttpTrigger1?code=6LPGa44cT4kV4jXF9cvJNYfODuQ/bneONGCMSC3uberPana/wtNh9A==");
+      //URIBuilder builder = new URIBuilder("https://email-notification-lambda.azurewebsites.net/chen/email/send");
+      URIBuilder builder = new URIBuilder("https://email-notification-lambda.azurewebsites.net/api/HttpTrigger1");
       URI uri = builder.build();
       HttpPost request = new HttpPost(uri);
       request.setHeader("Content-Type", "application/json");

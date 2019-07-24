@@ -8,7 +8,16 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import java.util.Optional;
 
 /**
- * Tutorial: https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-java-maven
+ * Tutorial:
+ *    https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-java-maven
+ *    https://docs.microsoft.com/en-us/java/api/overview/azure/maven/azure-functions-maven-plugin/readme?view=azure-java-stable
+ *
+ * Youtube:
+ *    https://www.youtube.com/watch?v=gRhHxy4USyI
+ *
+ * Install:
+ *    https://github.com/Azure/azure-functions-core-tools#mac
+ *
  */
 public class MyFunction1 {
   /**
