@@ -30,11 +30,14 @@ import java.util.concurrent.Executors;
 public class ADFPipelineExecutioner {
 
   public static void main(String[] args) throws JsonProcessingException, MalformedURLException, ExecutionException, InterruptedException {
+    ICredentialProvider credentials = new Credentials();
+    String sp = "real-adf-manager";
+
     Map<String, String> body = new HashMap<>();
     body.put("SasToken", "R32-PQ2n7L7Kv_-B8VpwWCtAu3FkX_QHZ6-2cgY4eZg");
     String bodyJson = new ObjectMapper().writeValueAsString(body);
 
-    String authorityUri = "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3"; //tenant id/aad id
+    String authorityUri = String.format("https://login.microsoftonline.com/%s", credentials.getADId());
     ExecutorService service = Executors.newCachedThreadPool();
     AuthenticationContext authContext = new AuthenticationContext(authorityUri, false, service);
 
@@ -50,8 +53,8 @@ public class ADFPipelineExecutioner {
       }
     };
     String resourceUri = "https://management.core.windows.net/";
-    String clientId = "556c6dd4-1d40-405b-9f34-b79751ba71ef";
-    String clientSecret = "]Sj+c70/93FunFG?oApv2_o7c[3S47HP";
+    String clientId = credentials.getClientId(sp);
+    String clientSecret = credentials.getClientSecret(sp);
     AuthenticationResult token = authContext.acquireToken(resourceUri, new ClientCredential(clientId, clientSecret), callback).get();
     System.out.println(token.getAccessToken());
     System.out.println(token.getExpiresOnDate());
@@ -61,7 +64,7 @@ public class ADFPipelineExecutioner {
     HttpClient httpclient = HttpClients.createDefault();
 
     try {
-      URIBuilder builder = new URIBuilder("https://management.azure.com/subscriptions/d3f099cb-50ca-4bc7-9b48-5df8ea28757f/resourceGroups/demo/providers/Microsoft.DataFactory/factories/Data-Factory-demo/pipelines/demo/createRun?api-version=2018-06-01");
+      URIBuilder builder = new URIBuilder(String.format("https://management.azure.com/subscriptions/%s/resourceGroups/demo/providers/Microsoft.DataFactory/factories/Data-Factory-demo/pipelines/demo/createRun?api-version=2018-06-01", credentials.getSubscriptionId()));
       URI uri = builder.build();
       HttpPost request = new HttpPost(uri);
       request.setHeader("Content-Type", "application/json"); //request

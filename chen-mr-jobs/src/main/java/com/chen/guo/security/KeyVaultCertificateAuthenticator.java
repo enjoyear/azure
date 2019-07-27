@@ -20,12 +20,10 @@ import org.bouncycastle.pkcs.PKCSException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.Executors;
 
 public class KeyVaultCertificateAuthenticator {
@@ -33,17 +31,8 @@ public class KeyVaultCertificateAuthenticator {
   /**
    * Do certificate based authentication using pem file
    *
-   * @param path
-   *            to pem file
-   * @param pemPassword
-   *            the password to the pem file, this can be empty if the file is unencrypted
-   * @throws IOException
-   * @throws CertificateException
-   *
-   * @throws InvalidKeySpecException
-   * @throws InvalidKeyException
-   * @throws PKCSException
-   * @throws OperatorCreationException
+   * @param path        to pem file
+   * @param pemPassword the password to the pem file, this can be empty if the file is unencrypted
    */
   public static KeyVaultClient getAuthenticatedClient(String path, String pemPassword) throws CertificateException, OperatorCreationException, IOException, PKCSException {
 

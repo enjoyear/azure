@@ -18,12 +18,10 @@ import java.security.cert.CertificateException;
 
 public class KeyVaultAccessor {
 
-  private static Region VAULT_REGION = Region.US_WEST;
+  private static Region VAULT_REGION = Region.US_EAST;
   private static Azure azure;
 
   public static void main(String[] args) throws CloudException, IOException, CertificateException, OperatorCreationException, PKCSException, InterruptedException {
-
-    //Asserting that required environment variables are set.
     assert (System.getProperty("AZURE_CLIENT_ID") != null);
     assert (System.getProperty("AZURE_TENANT_ID") != null);
     authenticateToAzure();
@@ -65,7 +63,6 @@ public class KeyVaultAccessor {
   }
 
   private static void authenticateToAzure() throws CloudException, IOException {
-
     //Authentication for general Azure service
     final File credFile = new File(System.getProperty("AZURE_AUTH_LOCATION"));
     azure = Azure.configure()

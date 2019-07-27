@@ -15,15 +15,15 @@ import java.util.concurrent.Future;
 
 public class KeyVaultADALAuthenticator {
 
-  public static KeyVaultClient getAuthenticatedClient() {
-    //Creates the KeyVaultClient using the created credentials.
-    return new KeyVaultClient(createCredentials());
+  public static void main(String[] args) {
+    String authorization = "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3";
+    String resourceUri = "https://management.core.windows.net/";
+
+    KeyVaultClient kvClient = new KeyVaultClient(createCredentials());
   }
 
   /**
    * Creates a new KeyVaultCredential based on the access token obtained.
-   *
-   * @return
    */
   private static ServiceClientCredentials createCredentials() {
     return new KeyVaultCredentials() {
@@ -49,7 +49,6 @@ public class KeyVaultADALAuthenticator {
    * Private helper method that gets the access token for the authorization and resource depending on which variables are supplied in the environment.
    */
   private static AuthenticationResult getAccessToken(String authorization, String resource) throws InterruptedException, ExecutionException, MalformedURLException {
-
     String clientId = System.getProperty("AZURE_CLIENT_ID");
     String clientKey = System.getProperty("AZURE_CLIENT_SECRET");
 
@@ -59,13 +58,8 @@ public class KeyVaultADALAuthenticator {
       service = Executors.newFixedThreadPool(1);
       AuthenticationContext context = new AuthenticationContext(authorization, false, service);
 
-      Future<AuthenticationResult> future = null;
-
-      //Acquires token based on client ID and client secret.
-      if (clientKey != null && clientKey != null) {
-        ClientCredential credentials = new ClientCredential(clientId, clientKey);
-        future = context.acquireToken(resource, credentials, null);
-      }
+      ClientCredential credentials = new ClientCredential(clientId, clientKey);
+      Future<AuthenticationResult> future = context.acquireToken(resource, credentials, null);
 
       result = future.get();
     } finally {
