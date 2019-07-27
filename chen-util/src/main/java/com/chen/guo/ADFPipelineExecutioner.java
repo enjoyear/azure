@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -34,7 +35,8 @@ public class ADFPipelineExecutioner {
     String bodyJson = new ObjectMapper().writeValueAsString(body);
 
     String authorityUri = "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3"; //tenant id/aad id
-    AuthenticationContext authContext = new AuthenticationContext(authorityUri, false, Executors.newCachedThreadPool());
+    ExecutorService service = Executors.newCachedThreadPool();
+    AuthenticationContext authContext = new AuthenticationContext(authorityUri, false, service);
 
     AuthenticationCallback callback = new AuthenticationCallback() {
       @Override
@@ -77,7 +79,7 @@ public class ADFPipelineExecutioner {
         System.out.println(EntityUtils.toString(entity));
       }
       System.out.println("Done");
-
+      service.shutdown(); //service needs to be shutdown, otherwise it won't exit
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }

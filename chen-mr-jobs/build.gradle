@@ -3,8 +3,6 @@ dependencies {
     compile group: 'org.apache.hadoop', name: 'hadoop-hdfs', version: '2.7.2'
     compile group: 'org.apache.hadoop', name: 'hadoop-mapreduce-client-core', version: '2.7.2'
 
-    compile group: 'com.microsoft.azure', name: 'azure-keyvault', version: '1.2.1'
-
     compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.62'
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.62'
 }

@@ -31,10 +31,8 @@ allprojects {
     }
 
     dependencies {
-        //depends on "azure-client-runtime 1.6.12"
-        //depends on "adal4j 1.6.2"
-        //depends on "azure-annotations 1.7.0"
-        compile group: 'com.microsoft.azure', name: 'azure-client-authentication', version: '1.6.10'
+        //The root package: Azure is the entry point for accessing resource management APIs.
+        compile group: 'com.microsoft.azure', name: 'azure', version: '1.24.1'
 
         implementation 'org.scala-lang:scala-library:2.11.12'
         testImplementation 'org.scalatest:scalatest_2.11:3.0.0'

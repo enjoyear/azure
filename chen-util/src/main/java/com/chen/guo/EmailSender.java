@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -31,10 +32,10 @@ import java.util.concurrent.Executors;
  * https://contos.io/working-with-identity-in-an-azure-function-1a981e10b900?gi=af7c9ad2c8d1
  * https://blogs.msdn.microsoft.com/stuartleeks/2018/02/19/azure-functions-and-app-service-authentication/
  * https://blogs.msdn.microsoft.com/ben/2018/11/07/client-app-calling-azure-function-with-aad/
- *
+ * <p>
  * Youtube:
  * https://www.youtube.com/watch?v=N5I59z3qY0A
- *
+ * <p>
  * Trouble Shooting:
  * https://stackoverflow.com/questions/50213999/in-azure-logic-app-i-am-getting-directapiauthorizationrequired/52874244#52874244
  * https://www.bruttin.com/2017/06/16/secure-logicapp-with-apim.html
@@ -82,7 +83,8 @@ public class EmailSender {
     String authorityUri = "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3";
     //String authorityUri = "https://login.microsoftonline.com/microsoft.com";
     //String authorityUri = "https://login.windows.net/common/oauth2/authorize";
-    AuthenticationContext authContext = new AuthenticationContext(authorityUri, false, Executors.newCachedThreadPool());
+    ExecutorService service = Executors.newCachedThreadPool();
+    AuthenticationContext authContext = new AuthenticationContext(authorityUri, false, service);
 
     AuthenticationCallback callback = new AuthenticationCallback() {
       @Override
@@ -133,7 +135,7 @@ public class EmailSender {
         System.out.println(EntityUtils.toString(entity));
       }
       System.out.println("Done");
-
+      service.shutdown(); //service needs to be shutdown, otherwise it won't exit
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }

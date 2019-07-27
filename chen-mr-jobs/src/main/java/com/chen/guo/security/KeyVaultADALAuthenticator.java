@@ -13,13 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-
-/**
- * Authenticates to Azure Key Vault by providing a callback to authenticate
- * using adal.
- *
- * @author tifchen
- */
 public class KeyVaultADALAuthenticator {
 
   public static KeyVaultClient getAuthenticatedClient() {
@@ -54,23 +47,13 @@ public class KeyVaultADALAuthenticator {
 
   /**
    * Private helper method that gets the access token for the authorization and resource depending on which variables are supplied in the environment.
-   *
-   * @param authorization
-   * @param resource
-   * @return
-   * @throws ExecutionException
-   * @throws InterruptedException
-   * @throws MalformedURLException
-   * @throws Exception
    */
   private static AuthenticationResult getAccessToken(String authorization, String resource) throws InterruptedException, ExecutionException, MalformedURLException {
 
     String clientId = System.getProperty("AZURE_CLIENT_ID");
     String clientKey = System.getProperty("AZURE_CLIENT_SECRET");
 
-    AuthenticationResult result = null;
-
-    //Starts a service to fetch access token.
+    AuthenticationResult result;
     ExecutorService service = null;
     try {
       service = Executors.newFixedThreadPool(1);
