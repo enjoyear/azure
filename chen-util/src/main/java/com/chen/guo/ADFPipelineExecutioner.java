@@ -2,10 +2,8 @@ package com.chen.guo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.aad.adal4j.AuthenticationCallback;
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
-import com.microsoft.aad.adal4j.ClientCredential;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -30,32 +28,17 @@ import java.util.concurrent.Executors;
 public class ADFPipelineExecutioner {
 
   public static void main(String[] args) throws JsonProcessingException, MalformedURLException, ExecutionException, InterruptedException {
-    ICredentialProvider credentials = new Credentials();
+    ICredentialProvider credentials = new CredentialsFileProvider();
+    AuthenticationHelper authHelper = new AuthenticationHelper(credentials);
     String sp = "real-adf-manager";
 
     Map<String, String> body = new HashMap<>();
     body.put("SasToken", "R32-PQ2n7L7Kv_-B8VpwWCtAu3FkX_QHZ6-2cgY4eZg");
     String bodyJson = new ObjectMapper().writeValueAsString(body);
 
-    String authorityUri = String.format("https://login.microsoftonline.com/%s", credentials.getADId());
     ExecutorService service = Executors.newCachedThreadPool();
-    AuthenticationContext authContext = new AuthenticationContext(authorityUri, false, service);
-
-    AuthenticationCallback callback = new AuthenticationCallback() {
-      @Override
-      public void onSuccess(Object result) {
-        System.out.println("Success: " + result.toString());
-      }
-
-      @Override
-      public void onFailure(Throwable exc) {
-        System.out.println("Failed: " + exc.toString());
-      }
-    };
-    String resourceUri = "https://management.core.windows.net/";
-    String clientId = credentials.getClientId(sp);
-    String clientSecret = credentials.getClientSecret(sp);
-    AuthenticationResult token = authContext.acquireToken(resourceUri, new ClientCredential(clientId, clientSecret), callback).get();
+    AuthenticationContext authContext = new AuthenticationContext(authHelper.getAuthorityUri(), false, service);
+    AuthenticationResult token = authContext.acquireToken(AuthenticationHelper.managementResourceUri, credentials.getClientCredential(sp), AuthenticationHelper.authenticationCallback).get();
     System.out.println(token.getAccessToken());
     System.out.println(token.getExpiresOnDate());
     System.out.println(token.getUserInfo());

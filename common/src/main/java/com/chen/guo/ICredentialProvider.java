@@ -1,9 +1,9 @@
 package com.chen.guo;
 
-public interface ICredentialProvider {
-  String getClientId(String clientName);
+import com.microsoft.aad.adal4j.ClientCredential;
 
-  String getClientSecret(String clientName);
+public interface ICredentialProvider {
+  ClientCredential getClientCredential(String clientName);
 
   /**
    * Active Directory Id(tenant id)

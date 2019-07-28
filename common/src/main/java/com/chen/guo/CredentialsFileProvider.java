@@ -1,22 +1,19 @@
 package com.chen.guo;
 
+import com.microsoft.aad.adal4j.ClientCredential;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class Credentials implements ICredentialProvider {
+public class CredentialsFileProvider implements ICredentialProvider {
   public final static String CLIENT_PREFIX = "azure.sp.";
   public final static Properties credentialFile = loadCredentials();
 
   @Override
-  public String getClientId(String clientName) {
-    return credentialFile.getProperty(CLIENT_PREFIX + clientName + ".id");
-  }
-
-  @Override
-  public String getClientSecret(String clientName) {
-    return credentialFile.getProperty(CLIENT_PREFIX + clientName + ".secret");
+  public ClientCredential getClientCredential(String clientName) {
+    return new ClientCredential(getClientId(clientName), getClientSecret(clientName));
   }
 
   @Override
@@ -39,5 +36,13 @@ public class Credentials implements ICredentialProvider {
       ex.printStackTrace();
       return null;
     }
+  }
+
+  private String getClientId(String clientName) {
+    return credentialFile.getProperty(CLIENT_PREFIX + clientName + ".id");
+  }
+
+  private String getClientSecret(String clientName) {
+    return credentialFile.getProperty(CLIENT_PREFIX + clientName + ".secret");
   }
 }

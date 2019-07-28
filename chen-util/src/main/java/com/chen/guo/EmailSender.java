@@ -2,10 +2,8 @@ package com.chen.guo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.aad.adal4j.AuthenticationCallback;
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
-import com.microsoft.aad.adal4j.ClientCredential;
 import com.microsoft.azure.functions.HttpMethod;
 import com.microsoft.azure.functions.OutputBinding;
 import com.microsoft.azure.functions.annotation.*;
@@ -79,35 +77,15 @@ public class EmailSender {
     body.put("status", "suc");
     String bodyJson = new ObjectMapper().writeValueAsString(body);
 
-    //https://login.microsoftonline.com/common/federation/oauth2
-    String authorityUri = "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3";
-    //String authorityUri = "https://login.microsoftonline.com/microsoft.com";
-    //String authorityUri = "https://login.windows.net/common/oauth2/authorize";
+    ICredentialProvider credentials = new CredentialsFileProvider();
+    AuthenticationHelper authHelper = new AuthenticationHelper(credentials);
+    String sp = "email-notification-lambda";
+
     ExecutorService service = Executors.newCachedThreadPool();
-    AuthenticationContext authContext = new AuthenticationContext(authorityUri, false, service);
-
-    AuthenticationCallback callback = new AuthenticationCallback() {
-      @Override
-      public void onSuccess(Object result) {
-        System.out.println("Success: " + result.toString());
-      }
-
-      @Override
-      public void onFailure(Throwable exc) {
-        System.out.println("Failed: " + exc.toString());
-      }
-    };
-    //String resourceUri = "https://graph.microsoft.com";
+    AuthenticationContext authContext = new AuthenticationContext(authHelper.getAuthorityUri(), false, service);
     //!!! This is called the App ID URI in the legacy view !!!
     String resourceUri = "https://email-notification-lambda.azurewebsites.net";
-    String clientId = "145610b1-e07f-4b9e-a371-5c186743a6d2";
-    String clientId2 = "758e6b38-335b-4c09-af3e-388cdbb7717e";
-    //String clientSecret = "GsXgmJHa2+/6vYPeEeDEtzb81dFaN0i4aTCfvVXCr9Y=";
-    String clientSecret = "3T_i2=1d0sv+*vAA.[iYJ4VjiM1+Zw]L";
-    String clientSecret2 = "/K@5Q.]p1Hs26.:pr=h3/Co4OR?L89B]";
-    //String redirectUri = "https://email-notification-lambda.azurewebsites.net/.auth/login/aad/callback";
-
-    AuthenticationResult token = authContext.acquireToken(resourceUri, new ClientCredential(clientId, clientSecret), callback).get();
+    AuthenticationResult token = authContext.acquireToken(resourceUri, credentials.getClientCredential(sp), AuthenticationHelper.authenticationCallback).get();
     System.out.println(token.getAccessToken());
     System.out.println(token.getExpiresOnDate());
     System.out.println(token.getUserInfo());
