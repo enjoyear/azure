@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 public class ADFPipelineExecutioner {
 
   public static void main(String[] args) throws JsonProcessingException, MalformedURLException, ExecutionException, InterruptedException {
-    ICredentialProvider credentials = new CredentialsFileProvider();
+    ICredentialProvider credentials = new CredentialsFileProvider("/Users/chguo/Documents/credentials/azure_credentials.properties");
     AuthenticationHelper authHelper = new AuthenticationHelper(credentials);
     String sp = "real-adf-manager";
 

@@ -1,5 +1,12 @@
 package com.chen.guo;
 
+import com.chen.guo.security.KeyVaultADALAuthenticator;
+import com.microsoft.azure.keyvault.KeyVaultClient;
+import com.microsoft.azure.keyvault.models.SecretBundle;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -13,6 +20,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.StringTokenizer;
 
 public class HadoopWordCount {
@@ -69,15 +77,31 @@ public class HadoopWordCount {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
 
-    for (int i = 0; i < otherArgs.length - 1; i++) {
+    for (int i = 0; i < otherArgs.length - 2; i++) {
       FileInputFormat.addInputPath(job, new Path(otherArgs[i]));
     }
 
     FileSystem fs = FileSystem.get(conf);
-    Path outputDir = new Path(otherArgs[(otherArgs.length - 1)], Long.toString(System.currentTimeMillis()));
+    Path outputDir = new Path(otherArgs[(otherArgs.length - 2)], Long.toString(System.currentTimeMillis()));
     System.out.println(String.format("FS: %s. Output path: %s", fs.toString(), outputDir.toString()));
-
     FileOutputFormat.setOutputPath(job, outputDir);
+
+    String storageAccountConnectionString = otherArgs[(otherArgs.length - 1)];
+    System.out.println(String.format("Storage Account Connection String: %s", storageAccountConnectionString));
+    CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageAccountConnectionString);
+    CloudBlobClient cloudBlobClient = storageAccount.createCloudBlobClient();
+    CloudBlobContainer container = cloudBlobClient.getContainerReference("demo-jars");
+    CloudBlockBlob blockRef = container.getBlockBlobReference("properties/azure_credentials.properties");
+    String s = blockRef.downloadText();
+    System.out.println("Blob Content: " + s);
+    ICredentialProvider credentials = new CredentialsFileProvider(new StringReader(s));
+    String sp = "key-vault-manager"; //this sp must be granted access in the KV's Access Policies
+    String vaultURL = "https://chen-vault.vault.azure.net/";
+
+    KeyVaultClient kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, sp));
+    SecretBundle secret = kvClient.getSecret(vaultURL, "sas-token");
+    System.out.println("Fetched SAS token: " + secret.value());
+
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }

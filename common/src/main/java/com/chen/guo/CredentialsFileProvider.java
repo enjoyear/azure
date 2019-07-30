@@ -5,11 +5,20 @@ import com.microsoft.aad.adal4j.ClientCredential;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.Properties;
 
 public class CredentialsFileProvider implements ICredentialProvider {
   public final static String CLIENT_PREFIX = "azure.sp.";
-  public final static Properties credentialFile = loadCredentials();
+  private final Properties _credentialFile;
+
+  public CredentialsFileProvider(String propertiesFile) {
+    _credentialFile = loadCredentials(propertiesFile);
+  }
+
+  public CredentialsFileProvider(Reader content) {
+    _credentialFile = loadCredentials(content);
+  }
 
   @Override
   public ClientCredential getClientCredential(String clientName) {
@@ -18,31 +27,40 @@ public class CredentialsFileProvider implements ICredentialProvider {
 
   @Override
   public String getADId() {
-    return credentialFile.getProperty("azure.ad.id");
+    return _credentialFile.getProperty("azure.ad.id");
   }
 
   @Override
   public String getSubscriptionId() {
-    return credentialFile.getProperty("azure.subscription.id");
+    return _credentialFile.getProperty("azure.subscription.id");
   }
 
-  public static Properties loadCredentials() {
-    try (InputStream input = new FileInputStream("/Users/chguo/Documents/credentials/azure_credentials.properties")) {
+  public Properties loadCredentials(String propertiesFile) {
+    try (InputStream input = new FileInputStream(propertiesFile)) {
 
       Properties prop = new Properties();
       prop.load(input);
       return prop;
     } catch (IOException ex) {
-      ex.printStackTrace();
-      return null;
+      throw new RuntimeException(ex);
+    }
+  }
+
+  public Properties loadCredentials(Reader content) {
+    try {
+      Properties prop = new Properties();
+      prop.load(content);
+      return prop;
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
     }
   }
 
   private String getClientId(String clientName) {
-    return credentialFile.getProperty(CLIENT_PREFIX + clientName + ".id");
+    return _credentialFile.getProperty(CLIENT_PREFIX + clientName + ".id");
   }
 
   private String getClientSecret(String clientName) {
-    return credentialFile.getProperty(CLIENT_PREFIX + clientName + ".secret");
+    return _credentialFile.getProperty(CLIENT_PREFIX + clientName + ".secret");
   }
 }

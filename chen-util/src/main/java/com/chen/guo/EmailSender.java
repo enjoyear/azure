@@ -77,7 +77,7 @@ public class EmailSender {
     body.put("status", "suc");
     String bodyJson = new ObjectMapper().writeValueAsString(body);
 
-    ICredentialProvider credentials = new CredentialsFileProvider();
+    ICredentialProvider credentials = new CredentialsFileProvider("/Users/chguo/Documents/credentials/azure_credentials.properties");
     AuthenticationHelper authHelper = new AuthenticationHelper(credentials);
     String sp = "email-notification-lambda";
 

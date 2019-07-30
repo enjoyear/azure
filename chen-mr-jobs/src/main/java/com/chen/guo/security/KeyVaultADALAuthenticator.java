@@ -8,6 +8,7 @@ import com.microsoft.aad.adal4j.AuthenticationResult;
 import com.microsoft.aad.adal4j.ClientCredential;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.authentication.KeyVaultCredentials;
+import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.rest.credentials.ServiceClientCredentials;
 
 import java.util.concurrent.ExecutorService;
@@ -16,19 +17,20 @@ import java.util.concurrent.Future;
 
 public class KeyVaultADALAuthenticator {
   public static void main(String[] args) {
-    ICredentialProvider credentials = new CredentialsFileProvider();
+    ICredentialProvider credentials = new CredentialsFileProvider("/Users/chguo/Documents/credentials/azure_credentials.properties");
     AuthenticationHelper authHelper = new AuthenticationHelper(credentials);
-    String sp = "key-vault-manager";
+    String sp = "key-vault-manager"; //this sp must be granted access in the KV's Access Policies
     String vaultURL = "https://chen-vault.vault.azure.net/";
 
     KeyVaultClient kvClient = new KeyVaultClient(createCredentials(credentials, sp));
-    kvClient.getSecret(vaultURL, "sas-token");
+    SecretBundle secret = kvClient.getSecret(vaultURL, "sas-token");
+    System.out.println(secret.value());
   }
 
   /**
    * Creates a new KeyVaultCredential based on the access token obtained.
    */
-  private static ServiceClientCredentials createCredentials(ICredentialProvider credentialProvider, String sp) {
+  public static ServiceClientCredentials createCredentials(ICredentialProvider credentialProvider, String sp) {
 
     return new KeyVaultCredentials() {
       /**
