@@ -40,13 +40,13 @@ object SparkWordCount extends App {
   println("Done")
 
   val storageAccountConnectionString = args(args.length - 1)
-  System.out.println(String.format("Storage Account Connection String: %s", storageAccountConnectionString))
+  println(String.format("Storage Account Connection String: %s", storageAccountConnectionString))
   val storageAccount = CloudStorageAccount.parse(storageAccountConnectionString)
   val cloudBlobClient = storageAccount.createCloudBlobClient
   val container = cloudBlobClient.getContainerReference("demo-jars")
   val blockRef = container.getBlockBlobReference("properties/azure_credentials.properties")
   val s = blockRef.downloadText
-  System.out.println("Blob Content: " + s)
+  println("Blob Content: " + s)
   val credentials = new CredentialsFileProvider(new StringReader(s))
   val sp = "key-vault-manager"
   //this sp must be granted access in the KV's Access Policies
@@ -54,6 +54,6 @@ object SparkWordCount extends App {
 
   val kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, sp))
   val secret = kvClient.getSecret(vaultURL, "sas-token")
-  System.out.println("Fetched SAS token: " + secret.value)
+  println("Fetched SAS token: " + secret.value)
 
 }

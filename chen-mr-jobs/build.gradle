@@ -9,7 +9,9 @@ dependencies {
 }
 
 shadowJar {
-    dependencies {
-        exclude(dependency('com.squareup.okio:okio:1.15.0'))
-    }
+    relocate 'okio', 'chguo.okio'
+    relocate 'com.google.common.base', 'chguo.com.google.common.base'
+//    dependencies {
+//        exclude(dependency('com.squareup.okio:okio:1.15.0'))
+//    }
 }
