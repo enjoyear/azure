@@ -30,7 +30,7 @@ public class ADFPipelineExecutioner {
   public static void main(String[] args) throws JsonProcessingException, MalformedURLException, ExecutionException, InterruptedException {
     ICredentialProvider credentials = new CredentialsFileProvider("/Users/chguo/Documents/credentials/azure_credentials.properties");
     AuthenticationHelper authHelper = new AuthenticationHelper(credentials);
-    String sp = "real-adf-manager";
+    String sp = "adf-executor";
 
     Map<String, String> body = new HashMap<>();
     body.put("SasToken", "R32-PQ2n7L7Kv_-B8VpwWCtAu3FkX_QHZ6-2cgY4eZg");

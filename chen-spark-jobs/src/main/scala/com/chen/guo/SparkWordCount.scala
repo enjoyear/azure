@@ -48,7 +48,7 @@ object SparkWordCount extends App {
   val s = blockRef.downloadText
   println("Blob Content: " + s)
   val credentials = new CredentialsFileProvider(new StringReader(s))
-  val sp = "key-vault-manager"
+  val sp = "akv-reader"
   //this sp must be granted access in the KV's Access Policies
   val vaultURL = "https://chen-vault.vault.azure.net/"
 

@@ -19,7 +19,7 @@ public class KeyVaultADALAuthenticator {
   public static void main(String[] args) {
     ICredentialProvider credentials = new CredentialsFileProvider("/Users/chguo/Documents/credentials/azure_credentials.properties");
     AuthenticationHelper authHelper = new AuthenticationHelper(credentials);
-    String sp = "key-vault-manager"; //this sp must be granted access in the KV's Access Policies
+    String sp = "akv-reader"; //this sp must be granted access in the KV's Access Policies
     String vaultURL = "https://chen-vault.vault.azure.net/";
 
     KeyVaultClient kvClient = new KeyVaultClient(createCredentials(credentials, sp));

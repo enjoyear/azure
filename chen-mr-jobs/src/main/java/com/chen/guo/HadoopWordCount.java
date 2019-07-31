@@ -95,7 +95,7 @@ public class HadoopWordCount {
     String s = blockRef.downloadText();
     System.out.println("Blob Content: " + s);
     ICredentialProvider credentials = new CredentialsFileProvider(new StringReader(s));
-    String sp = "key-vault-manager"; //this sp must be granted access in the KV's Access Policies
+    String sp = "akv-reader"; //this sp must be granted access in the KV's Access Policies
     String vaultURL = "https://chen-vault.vault.azure.net/";
 
     KeyVaultClient kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, sp));
