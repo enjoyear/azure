@@ -1,11 +1,18 @@
 package com.chen.guo;
 
+import com.chen.guo.security.KeyVaultADALAuthenticator;
 import com.microsoft.aad.adal4j.ClientCredential;
+import com.microsoft.azure.keyvault.KeyVaultClient;
+import com.microsoft.azure.keyvault.models.SecretBundle;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.Properties;
 
 public class CredentialsFileProvider implements ICredentialProvider {
@@ -22,7 +29,10 @@ public class CredentialsFileProvider implements ICredentialProvider {
 
   @Override
   public ClientCredential getClientCredential(String clientName) {
-    return new ClientCredential(getClientId(clientName), getClientSecret(clientName));
+    String clientId = getClientId(clientName);
+    String clientSecret = getClientSecret(clientName);
+    System.out.println(String.format("Fetched id %s, secret %s for client %s", clientId, clientSecret, clientName));
+    return new ClientCredential(clientId, clientSecret);
   }
 
   @Override
@@ -62,5 +72,27 @@ public class CredentialsFileProvider implements ICredentialProvider {
 
   private String getClientSecret(String clientName) {
     return _credentialFile.getProperty(CLIENT_PREFIX + clientName + ".secret");
+  }
+
+  /**
+   * Instead of passing the storageAccountConnectionString,
+   * the akv-reader's id and secret need to be passed in in production.
+   */
+  public static String getSecretFromSA(String storageAccountConnectionString, String secretName) throws URISyntaxException, InvalidKeyException, StorageException, IOException {
+    System.out.println(String.format("Storage Account Connection String: %s", storageAccountConnectionString));
+    CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageAccountConnectionString);
+    CloudBlobClient cloudBlobClient = storageAccount.createCloudBlobClient();
+    CloudBlobContainer container = cloudBlobClient.getContainerReference("demo-jars");
+    CloudBlockBlob blockRef = container.getBlockBlobReference("properties/azure_credentials.properties");
+    String s = blockRef.downloadText();
+    System.out.println("Blob Content: " + s);
+    ICredentialProvider credentials = new CredentialsFileProvider(new StringReader(s));
+    String sp = "akv-reader"; //this sp must be granted access in the KV's Access Policies
+    String vaultURL = "https://chen-vault.vault.azure.net/";
+
+    KeyVaultClient kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, sp));
+    SecretBundle secret = kvClient.getSecret(vaultURL, secretName);
+    System.out.println(String.format("Fetched secret %s: %s", secretName, secret.value()));
+    return secretName;
   }
 }
