@@ -93,6 +93,6 @@ public class CredentialsFileProvider implements ICredentialProvider {
     KeyVaultClient kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, sp));
     SecretBundle secret = kvClient.getSecret(vaultURL, secretName);
     System.out.println(String.format("Fetched secret %s: %s", secretName, secret.value()));
-    return secretName;
+    return secret.value();
   }
 }

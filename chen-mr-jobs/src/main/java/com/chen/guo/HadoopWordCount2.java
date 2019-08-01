@@ -52,8 +52,8 @@ public class HadoopWordCount2 {
   public static void main(String[] args) throws Exception {
     System.out.println("Running Word Count example...");
     HashMap<String, String> cosmos = new HashMap<>();
-    cosmos.put("Customer1", "6358f0cd-ce12-4e89-be99-66b16637880e");
-    cosmos.put("Customer2", "a75cef49-07f3-4028-bd1b-38731cf1ff4f");
+    cosmos.put("customer1", "6358f0cd-ce12-4e89-be99-66b16637880e");
+    cosmos.put("customer2", "a75cef49-07f3-4028-bd1b-38731cf1ff4f");
 
     for (String arg : args) {
       System.out.println("arg: " + arg);
@@ -67,7 +67,7 @@ public class HadoopWordCount2 {
     }
 
     String storageAccountConnectionString = otherArgs[(otherArgs.length - 2)];
-    String clientName = otherArgs[(otherArgs.length - 1)];
+    String clientName = otherArgs[(otherArgs.length - 1)].toLowerCase();
     String clientId = cosmos.get(clientName);
     String clientSecret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, clientName + "-secret");
     System.out.println(String.format("Got client id %s, client secret %s for client %s", clientId, clientSecret, clientName));
