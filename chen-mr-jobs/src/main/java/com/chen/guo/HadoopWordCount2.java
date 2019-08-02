@@ -72,7 +72,7 @@ public class HadoopWordCount2 {
      * Configuration content: mapreduce.job.credentials.binary -> /mnt/resource/hadoop/yarn/local/usercache/admin/appcache/application_1564700871853_0002/container_1564700871853_0002_01_000002/container_tokens
      * Configuration content: mapreduce.client.genericoptionsparser.used -> true
      */
-    printConfiguration(conf);
+    //printConfiguration(conf);
 
     if (otherArgs.length < 2) {
       System.err.println("Usage: wordcount <in> [<in>...] <out>");
@@ -105,7 +105,7 @@ public class HadoopWordCount2 {
     conf.set("fs.azure.account.oauth2.client.secret", clientSecret);
     conf.set("fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token");
 
-    Job job = Job.getInstance(conf, "Word Count Hadoop");
+    Job job = Job.getInstance(conf, "WC-" + clientName);
     job.setJarByClass(HadoopWordCount2.class);
     job.setMapperClass(TokenizerMapper.class);
     job.setCombinerClass(IntSumReducer.class);
@@ -113,10 +113,14 @@ public class HadoopWordCount2 {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
 
-    for (int i = 0; i < otherArgs.length - 3; i++) {
+    String egPath = otherArgs[0];
+    System.out.println("EG Path: " + egPath);
+    FileInputFormat.addInputPath(job, new Path(egPath));
+
+    for (int i = 1; i < otherArgs.length - 3; i++) {
       String inputPart = otherArgs[i];
-      System.out.println("Got input " + inputPart);
       String inputPath = String.format("abfss://%s@%s", clientName, inputPart);
+      System.out.println(String.format("Got input %s. Input path %s", inputPart, inputPath));
       FileInputFormat.addInputPath(job, new Path(inputPath));
     }
 
