@@ -16,9 +16,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class HadoopWordCount2 {
   public static class TokenizerMapper
@@ -80,20 +78,30 @@ public class HadoopWordCount2 {
     }
 
     String clientNames = otherArgs[(otherArgs.length - 1)].toLowerCase();
+    List<Job> jobs = new ArrayList<>();
+
     for (String clientName : clientNames.split(",")) {
       System.out.println("Starting job for " + clientName);
-      Job job = wcJob(cosmos, conf, otherArgs, clientName);
-      System.out.println(String.format("Job %s for client %s completed", job.getJobID(), clientName));
+      Job job = createMRJob(cosmos, conf, otherArgs, clientName);
+      jobs.add(job);
+      //Submit the job to the cluster and return immediately.
+      System.out.println(String.format("Job %s for client %s submitting", job.getJobID(), clientName));
+      job.submit();
+    }
 
+    for (Job job : jobs) {
       if (!job.waitForCompletion(true)) {
-        System.out.println(String.format("Job for client %s failed", clientName));
+        System.out.println(String.format("Job %s failed", job.getJobName()));
         System.exit(1);
+      } else {
+        System.out.println(String.format("Job %s completed", job.getJobName()));
       }
     }
+
     System.exit(0);
   }
 
-  private static Job wcJob(HashMap<String, String> cosmos, Configuration conf, String[] otherArgs, String clientName) throws URISyntaxException, InvalidKeyException, StorageException, IOException {
+  private static Job createMRJob(HashMap<String, String> cosmos, Configuration conf, String[] otherArgs, String clientName) throws URISyntaxException, InvalidKeyException, StorageException, IOException {
     String storageAccountConnectionString = otherArgs[(otherArgs.length - 2)];
 
     String clientId = cosmos.get(clientName);
@@ -105,6 +113,7 @@ public class HadoopWordCount2 {
     conf.set("fs.azure.account.oauth2.client.secret", clientSecret);
     conf.set("fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token");
 
+    //https://hadoop.apache.org/docs/r2.7.3/api/index.html?org/apache/hadoop/mapreduce/Job.html
     Job job = Job.getInstance(conf, "WC-" + clientName);
     job.setJarByClass(HadoopWordCount2.class);
     job.setMapperClass(TokenizerMapper.class);
@@ -131,7 +140,7 @@ public class HadoopWordCount2 {
     System.out.println(String.format("FS: %s. Output path: %s", fs.toString(), outputDir.toString()));
 
     FileOutputFormat.setOutputPath(job, outputDir);
-    System.out.println(String.format("Finished configuration for job %s, id: %s, tracking url: %s", job.getJobName(), job.getJobID(), job.getTrackingURL()));
+    System.out.println(String.format("Finished configuration for job %s, id: %s", job.getJobName(), job.getJobID()));
     return job;
   }
 
