@@ -41,11 +41,14 @@ public class KeyVaultADALAuthenticator {
         System.out.println("Authorization URL: " + authorization);
         System.out.println("Resource: " + resource);
         System.out.println("Scope: " + scope);
+        System.out.println("Performing OAuth Authentication for " + sp);
+
         AuthenticationResult result;
         ExecutorService service = null;
         try {
           service = Executors.newFixedThreadPool(1);
           AuthenticationContext context = new AuthenticationContext(authorization, false, service);
+          //Read the SP's id and secret from credential file
           ClientCredential credentials = credentialProvider.getClientCredential(sp);
           Future<AuthenticationResult> future = context.acquireToken(resource, credentials, AuthenticationHelper.authenticationCallback);
           result = future.get();

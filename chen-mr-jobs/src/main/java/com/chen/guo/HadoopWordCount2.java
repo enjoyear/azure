@@ -98,7 +98,7 @@ public class HadoopWordCount2 {
 
     String clientId = cosmos.get(clientName);
     String clientSecret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, clientName + "-secret");
-    System.out.println(String.format("Got client id %s, client secret %s for client %s", clientId, clientSecret, clientName));
+    System.out.println(String.format("Read AKV for client %s: got id %s, secret %s", clientName, clientId, clientSecret));
     conf.set("fs.azure.account.auth.type", "OAuth");
     conf.set("fs.azure.account.oauth.provider.type", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider");
     conf.set("fs.azure.account.oauth2.client.id", clientId);
@@ -131,6 +131,7 @@ public class HadoopWordCount2 {
     System.out.println(String.format("FS: %s. Output path: %s", fs.toString(), outputDir.toString()));
 
     FileOutputFormat.setOutputPath(job, outputDir);
+    System.out.println(String.format("Finished configuration for job %s, id: %s, tracking url: %s", job.getJobName(), job.getJobID(), job.getTrackingURL()));
     return job;
   }
 

@@ -9,6 +9,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.microsoft.rest.credentials.ServiceClientCredentials;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -31,7 +32,7 @@ public class CredentialsFileProvider implements ICredentialProvider {
   public ClientCredential getClientCredential(String clientName) {
     String clientId = getClientId(clientName);
     String clientSecret = getClientSecret(clientName);
-    System.out.println(String.format("Fetched id %s, secret %s for client %s", clientId, clientSecret, clientName));
+    System.out.println(String.format("Read credential file: id %s, secret %s for client %s", clientId, clientSecret, clientName));
     return new ClientCredential(clientId, clientSecret);
   }
 
@@ -85,12 +86,13 @@ public class CredentialsFileProvider implements ICredentialProvider {
     CloudBlobContainer container = cloudBlobClient.getContainerReference("demo-jars");
     CloudBlockBlob blockRef = container.getBlockBlobReference("properties/azure_credentials.properties");
     String s = blockRef.downloadText();
-    System.out.println("Blob Content: " + s);
+    System.out.println("Loaded credential file blob content: " + s);
     ICredentialProvider credentials = new CredentialsFileProvider(new StringReader(s));
     String sp = "akv-reader"; //this sp must be granted access in the KV's Access Policies
-    String vaultURL = "https://chen-vault.vault.azure.net/";
+    ServiceClientCredentials akvReaderCredential = KeyVaultADALAuthenticator.createCredentials(credentials, sp);
+    KeyVaultClient kvClient = new KeyVaultClient(akvReaderCredential);
 
-    KeyVaultClient kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, sp));
+    String vaultURL = "https://chen-vault.vault.azure.net/";
     SecretBundle secret = kvClient.getSecret(vaultURL, secretName);
     System.out.println(String.format("Fetched secret %s: %s", secretName, secret.value()));
     return secret.value();
