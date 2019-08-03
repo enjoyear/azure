@@ -31,12 +31,16 @@ object SparkWordCount2 extends App {
     val ss: SparkSession =
       SparkSession.builder()
         .appName(s"WC-$clientName")
-        .config("fs.azure.account.auth.type", "OAuth")
-        .config("fs.azure.account.oauth.provider.type", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
-        .config("fs.azure.account.oauth2.client.id", clientId)
-        .config("fs.azure.account.oauth2.client.secret", clientSecret)
-        .config("fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
+        .config("spark.yarn.maxAppAttempts", 1)
+        .config("spark.hadoop.fs.azure.account.auth.type", "OAuth")
+        .config("spark.hadoop.fs.azure.account.oauth.provider.type", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
+        .config("spark.hadoop.fs.azure.account.oauth2.client.id", clientId)
+        .config("spark.hadoop.fs.azure.account.oauth2.client.secret", clientSecret)
+        .config("spark.hadoop.fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
         .getOrCreate()
+
+//    println("Printing configurations")
+//    ss.conf.getAll.foreach(x => println(s"${x._1} -> ${x._2}"))
 
     val sc = ss.sparkContext
     var inputs: RDD[String] = sc.emptyRDD[String]
