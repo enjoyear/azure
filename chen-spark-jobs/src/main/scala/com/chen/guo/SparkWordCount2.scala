@@ -3,6 +3,7 @@ package com.chen.guo
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.{SparkConf, SparkContext}
 
 object SparkWordCount2 extends App {
   /**
@@ -30,22 +31,31 @@ object SparkWordCount2 extends App {
 
     val ss: SparkSession =
       SparkSession.builder()
-        .appName(s"WC-$clientName")
+        .appName(s"WC-example") //a spark application processing multiple customers' data
         .config("spark.yarn.maxAppAttempts", 1)
-        .config("spark.hadoop.fs.azure.account.auth.type", "OAuth")
-        .config("spark.hadoop.fs.azure.account.oauth.provider.type", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
-        .config("spark.hadoop.fs.azure.account.oauth2.client.id", clientId)
-        .config("spark.hadoop.fs.azure.account.oauth2.client.secret", clientSecret)
-        .config("spark.hadoop.fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
+        .config("spark.submit.deployMode", "cluster")
+        //        .config("spark.hadoop.fs.azure.account.auth.type", "OAuth")
+        //        .config("spark.hadoop.fs.azure.account.oauth.provider.type", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
+        //        .config("spark.hadoop.fs.azure.account.oauth2.client.id", clientId)
+        //        .config("spark.hadoop.fs.azure.account.oauth2.client.secret", clientSecret)
+        //        .config("spark.hadoop.fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
         .getOrCreate()
 
-//    println("Printing configurations")
-//    ss.conf.getAll.foreach(x => println(s"${x._1} -> ${x._2}"))
+    //session's conf v.s. sc's conf?
+    ss.conf.set("spark.hadoop.fs.azure.account.auth.type", "OAuth")
+    ss.conf.set("spark.hadoop.fs.azure.account.oauth.provider.type", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
+    ss.conf.set("spark.hadoop.fs.azure.account.oauth2.client.id", clientId)
+    ss.conf.set("spark.hadoop.fs.azure.account.oauth2.client.secret", clientSecret)
+    ss.conf.set("spark.hadoop.fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
+
+    println(s"Printing configurations for $clientName")
+    ss.conf.getAll.foreach(x => if (x._1.startsWith("spark.hadoop")) println(s"${x._1} -> ${x._2}"))
+    println(s"spark.master -> ${ss.conf.get("spark.master")}")
 
     val sc = ss.sparkContext
     var inputs: RDD[String] = sc.emptyRDD[String]
     val egDataFullPath = args(0)
-    println(s"Get EG data path $egDataFullPath")
+    println(s"In application ${sc.applicationId}: Get EG data path $egDataFullPath")
     inputs.union(sc.textFile(egDataFullPath))
 
     for (inputPathPart <- args.tail.dropRight(3)) {
