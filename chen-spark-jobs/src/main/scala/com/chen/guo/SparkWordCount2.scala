@@ -1,12 +1,16 @@
 package com.chen.guo
 
 import org.apache.hadoop.fs.Path
+import org.apache.log4j.{Level, LogManager}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import org.slf4j.{Logger, LoggerFactory}
 
 object SparkWordCount2 extends App {
   val logger: Logger = LoggerFactory.getLogger(getClass.getName)
+  LogManager.getRootLogger.setLevel(Level.DEBUG)
+  LogManager.getLogger("log4j.logger.org.apache.hadoop.fs").setLevel(Level.DEBUG)
+
   /**
     * 1st arg: full eg path
     * 2nd arg: partial customer raw data path
@@ -40,6 +44,9 @@ object SparkWordCount2 extends App {
         .appName(s"WC-example") //a spark application processing multiple customers' data
         .config("spark.yarn.maxAppAttempts", 1)
         .config("spark.submit.deployMode", "cluster")
+        .config("spark.hadoop.cloneConf", "true")
+        .config("spark.hadoop.fs.abfss.impl.disable.cache", "true")
+        .config("spark.hadoop.fs.abfs.impl.disable.cache", "true")
         .config("spark.hadoop.fs.azure.account.auth.type", "OAuth")
         .config("spark.hadoop.fs.azure.account.oauth.provider.type", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
         .config("spark.hadoop.fs.azure.account.oauth2.client.id", clientId)
