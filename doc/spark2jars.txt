@@ -73,6 +73,9 @@ drwxr-xr-x 11 root root     4096 Aug  6 00:37 ../
 -rw-r--r--  1 root root    17402 Mar  1 16:51 hadoop-annotations-2.7.3.2.6.5.3008-11.jar
 -rw-r--r--  1 root root    79421 Mar  1 16:51 hadoop-auth-2.7.3.2.6.5.3008-11.jar
 -rw-r--r--  1 root root   223051 Mar  1 16:51 hadoop-aws-2.7.3.2.6.5.3008-11.jar
+
+https://repo.hortonworks.com/content/repositories/releases/org/apache/hadoop/hadoop-azure/2.7.3.2.6.5.3008-11/
+
 -rw-r--r--  1 root root   444852 Mar  1 16:51 hadoop-azure-2.7.3.2.6.5.3008-11.jar
 -rw-r--r--  1 root root    23476 Mar  1 16:51 hadoop-azure-datalake-2.7.3.2.6.5.3008-11.jar
 -rw-r--r--  1 root root     2572 Mar  1 16:51 hadoop-client-2.7.3.2.6.5.3008-11.jar

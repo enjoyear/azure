@@ -26,6 +26,12 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven {
+            url "https://repo.hortonworks.com/content/repositories/releases/"
+        }
+        maven {
+            url "https://repo.spring.io/plugins-release/"
+        }
     }
     
     sourceSets {
@@ -48,7 +54,7 @@ allprojects {
         compile group: 'com.microsoft.azure', name: 'adal4j', version: '1.6.2'
         compile group: 'com.microsoft.azure', name: 'azure-storage', version: '7.0.0'
 
-        compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure', version: '3.2.0'
+        compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure', version: '2.7.3.2.6.5.3008-11'
 
         implementation 'org.scala-lang:scala-library:2.11.12'
         testImplementation 'org.scalatest:scalatest_2.11:3.0.0'
