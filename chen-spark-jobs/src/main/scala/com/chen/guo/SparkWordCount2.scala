@@ -39,14 +39,15 @@ object SparkWordCount2 extends App {
     val clientSecret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, clientName + "-secret")
     logger.info(s"Got id $clientId secret $clientSecret for $clientName")
 
-    val ss: SparkSession =
+    val spark: SparkSession =
       SparkSession.builder()
         .appName(s"WC-example") //a spark application processing multiple customers' data
         .config("spark.yarn.maxAppAttempts", 1)
         .config("spark.submit.deployMode", "cluster")
-        .config("spark.hadoop.cloneConf", "true")
-        .config("spark.hadoop.fs.abfss.impl.disable.cache", "true")
-        .config("spark.hadoop.fs.abfs.impl.disable.cache", "true")
+        //        .config("spark.hadoop.cloneConf", "true")
+        //        .config("spark.hadoop.fs.abfss.impl.disable.cache", "true")
+        //        .config("spark.hadoop.fs.abfs.impl.disable.cache", "true")
+        .config("spark.driver.allowMultipleContexts", "true")
         .config("spark.hadoop.fs.azure.account.auth.type", "OAuth")
         .config("spark.hadoop.fs.azure.account.oauth.provider.type", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
         .config("spark.hadoop.fs.azure.account.oauth2.client.id", clientId)
@@ -54,21 +55,11 @@ object SparkWordCount2 extends App {
         .config("spark.hadoop.fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
         .getOrCreate()
 
-    if (clientName != clientNamesArray(0)) {
-      //session's conf v.s. sc's conf?
-      logger.info(s"Changing settings")
-      ss.conf.set("spark.hadoop.fs.azure.account.auth.type", "OAuth")
-      ss.conf.set("spark.hadoop.fs.azure.account.oauth.provider.type", "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")
-      ss.conf.set("spark.hadoop.fs.azure.account.oauth2.client.id", clientId)
-      ss.conf.set("spark.hadoop.fs.azure.account.oauth2.client.secret", clientSecret)
-      ss.conf.set("spark.hadoop.fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
-    }
-
     logger.info(s"Printing configurations for $clientName")
-    ss.conf.getAll.foreach(x => if (x._1.startsWith("spark.hadoop")) logger.info(s"${x._1} -> ${x._2}"))
-    logger.info(s"spark.master -> ${ss.conf.get("spark.master")}")
+    spark.conf.getAll.foreach(x => if (x._1.startsWith("spark.hadoop")) logger.info(s"${x._1} -> ${x._2}"))
+    logger.info(s"spark.master -> ${spark.conf.get("spark.master")}")
 
-    val sc = ss.sparkContext
+    val sc = spark.sparkContext
     var inputs: RDD[String] = sc.emptyRDD[String]
     val egDataFullPath = args(0)
     logger.info(s"In application ${sc.applicationId}: Get EG data path $egDataFullPath")
@@ -91,5 +82,6 @@ object SparkWordCount2 extends App {
     logger.info(s"Got counts")
     counts.coalesce(1).saveAsTextFile(outputDir.toString)
     logger.info(s"Done for $clientName")
+    spark.stop()
   })
 }
