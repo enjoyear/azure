@@ -41,9 +41,9 @@ object SparkWordCount2 extends App {
 
     val spark: SparkSession =
       SparkSession.builder()
-        .appName(s"WC-example") //a spark application processing multiple customers' data
-        .config("spark.yarn.maxAppAttempts", 1)
-        .config("spark.submit.deployMode", "cluster")
+        .appName(s"WC-example-$clientName") //a spark application processing multiple customers' data
+        //.config("spark.yarn.maxAppAttempts", 1)
+        //.config("spark.submit.deployMode", "cluster")
         //        .config("spark.hadoop.cloneConf", "true")
         //        .config("spark.hadoop.fs.abfss.impl.disable.cache", "true")
         //        .config("spark.hadoop.fs.abfs.impl.disable.cache", "true")
@@ -83,5 +83,6 @@ object SparkWordCount2 extends App {
     counts.coalesce(1).saveAsTextFile(outputDir.toString)
     logger.info(s"Done for $clientName")
     spark.stop()
+    logger.info(s"Stopped the context")
   })
 }
