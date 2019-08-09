@@ -1,0 +1,28 @@
+{
+  "runId": "b6005f63-6c43-45fb-b336-9b15e0868200",
+  "debugRunId": null,
+  "runGroupId": "b6005f63-6c43-45fb-b336-9b15e0868200",
+  "pipelineName": "spark-only",
+  "parameters": {
+    "FsCustomer": "customer1",
+    "AdlEnterprise": "adl0enterprise",
+    "AdlLinkedIn": "adl0linkedin",
+    "AdlConflated": "adl0conflated",
+    "FsEg": "economic-graph",
+    "SasToken": "R32-PQ2n7L7Kv_-B8VpwWCtAu3FkX_QHZ6-2cgY4eZg"
+  },
+  "invokedBy": {
+    "id": "c160081b7bd04e9eb7f7c2f4c81d1ece",
+    "name": "Manual",
+    "invokedByType": "Manual"
+  },
+  "runStart": "2019-08-08T22:47:27.0969143Z",
+  "runEnd": "2019-08-08T23:01:51.951895Z",
+  "durationInMs": 864854,
+  "status": "Succeeded",
+  "message": "",
+  "lastUpdated": "2019-08-08T23:01:51.951895Z",
+  "annotations": [],
+  "runDimension": {},
+  "isLatest": true
+}

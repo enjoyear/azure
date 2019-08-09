@@ -1,0 +1,28 @@
+{
+  "runId": "3fac1e5f-fc27-4d53-84d6-da83b0426b5d",
+  "debugRunId": null,
+  "runGroupId": "3fac1e5f-fc27-4d53-84d6-da83b0426b5d",
+  "pipelineName": "spark-only2",
+  "parameters": {
+    "FsCustomer": "customer1,customer2",
+    "AdlEnterprise": "adl0enterprise",
+    "AdlLinkedIn": "adl0linkedin",
+    "AdlConflated": "adl0conflated",
+    "FsEg": "economic-graph",
+    "SasToken": "R32-PQ2n7L7Kv_-B8VpwWCtAu3FkX_QHZ6-2cgY4eZg"
+  },
+  "invokedBy": {
+    "id": "fb7af42352324e48bb69c9fe28659c01",
+    "name": "Manual",
+    "invokedByType": "Manual"
+  },
+  "runStart": "2019-08-09T00:39:42.8487872Z",
+  "runEnd": "2019-08-09T01:58:19.7028107Z",
+  "durationInMs": 4716854,
+  "status": "Failed",
+  "message": "Activity Spark-WC-c2 failed: The cluster not found, ClusterEndpoint=https://x42972f54-8d64-4da3-a3b4-33290a5eb8a0.azurehdinsight.net/",
+  "lastUpdated": "2019-08-09T01:58:19.7028107Z",
+  "annotations": [],
+  "runDimension": {},
+  "isLatest": true
+}
