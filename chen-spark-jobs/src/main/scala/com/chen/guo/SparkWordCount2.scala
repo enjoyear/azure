@@ -58,6 +58,7 @@ object SparkWordCount2 extends App {
     logger.info(s"Printing configurations for $clientName")
     spark.conf.getAll.foreach(x => if (x._1.startsWith("spark.hadoop")) logger.info(s"${x._1} -> ${x._2}"))
     logger.info(s"spark.master -> ${spark.conf.get("spark.master")}")
+    logger.info(s"spark.submit.deployMode -> ${spark.conf.get("spark.submit.deployMode")}")
 
     val sc = spark.sparkContext
     var inputs: RDD[String] = sc.emptyRDD[String]
