@@ -1,0 +1,184 @@
+{
+  "value": [
+    {
+      "activityRunEnd": "2019-08-09T01:26:49.3216181Z",
+      "activityName": "Starter",
+      "activityRunStart": "2019-08-09T00:39:45.2120713Z",
+      "activityType": "HDInsightSpark",
+      "durationInMs": 2824109,
+      "retryAttempt": null,
+      "error": {
+        "errorCode": "",
+        "message": "",
+        "failureType": "",
+        "target": "Starter"
+      },
+      "activityRunId": "24156418-335f-4337-a9f8-804ddb7274e9",
+      "iterationHash": "",
+      "input": {
+        "rootPath": "demo-jars/wordcount/spark",
+        "entryFilePath": "chen-spark-jobs-1.0-SNAPSHOT-all.jar",
+        "arguments": [
+          "abfss://economic-graph@adl0linkedin.dfs.core.windows.net/data/eg/linkedin-eg.txt",
+          "adl0enterprise.dfs.core.windows.net/data/gutenberg/davinci.txt",
+          "adl0conflated.dfs.core.windows.net/data/conflated/spark",
+          "hide this",
+          "customer1"
+        ],
+        "getDebugInfo": "Always",
+        "className": "com.chen.guo.SparkWordCount2",
+        "sparkJobLinkedService": {
+          "referenceName": "absJar",
+          "type": "LinkedServiceReference"
+        }
+      },
+      "linkedServiceName": "",
+      "output": {
+        "computeInformation": "https://x42972f54-8d64-4da3-a3b4-33290a5eb8a0.azurehdinsight.net/",
+        "batchId": 0,
+        "ExecutionProgress": "Succeeded",
+        "logLocation": "https://abs0execution.blob.core.windows.net/sparkjobs/sparkjobs/24156418-335f-4337-a9f8-804ddb7274e9/09_08_2019_01_23_30_242/log/",
+        "stderrSasUri": "https://abs0execution.blob.core.windows.net/sparkjobs/sparkjobs/24156418-335f-4337-a9f8-804ddb7274e9/09_08_2019_01_23_30_242/log/YarnLogs/application_1565311666245_0004/stderr?sv=2018-03-28&sr=b&sig=9UCq3gthJf7uZUuMdXKZmvBASJdNM56i16rXEjK6q78%3D&se=2019-09-23T01%3A26%3A48Z&sp=r",
+        "jobId": "application_1565311666245_0004",
+        "effectiveIntegrationRuntime": "DefaultIntegrationRuntime (East US)",
+        "executionDuration": 2821,
+        "durationInQueue": {
+          "integrationRuntimeQueue": 1
+        }
+      },
+      "userProperties": {},
+      "pipelineName": "spark-only2",
+      "pipelineRunId": "3fac1e5f-fc27-4d53-84d6-da83b0426b5d",
+      "status": "Succeeded",
+      "recoveryStatus": "None",
+      "integrationRuntimeNames": [
+        "defaultintegrationruntime"
+      ],
+      "executionDetails": {
+        "integrationRuntime": [
+          {
+            "name": "DefaultIntegrationRuntime",
+            "type": "Managed",
+            "location": "East US"
+          }
+        ]
+      }
+    },
+    {
+      "activityRunEnd": "2019-08-09T01:58:04.1019953Z",
+      "activityName": "Spark-WC-c2",
+      "activityRunStart": "2019-08-09T01:26:50.4623135Z",
+      "activityType": "HDInsightSpark",
+      "durationInMs": 1873639,
+      "retryAttempt": null,
+      "error": {
+        "errorCode": "2011",
+        "message": "The cluster not found, ClusterEndpoint=https://x42972f54-8d64-4da3-a3b4-33290a5eb8a0.azurehdinsight.net/",
+        "failureType": "UserError",
+        "target": "Spark-WC-c2"
+      },
+      "activityRunId": "f2ccd4f3-08d9-4ec5-bf00-af05f1f76127",
+      "iterationHash": "",
+      "input": {
+        "rootPath": "demo-jars/wordcount/spark",
+        "entryFilePath": "chen-spark-jobs-1.0-SNAPSHOT-all.jar",
+        "arguments": [
+          "abfss://economic-graph@adl0linkedin.dfs.core.windows.net/data/eg/linkedin-eg.txt",
+          "adl0enterprise.dfs.core.windows.net/data/gutenberg/davinci.txt",
+          "adl0conflated.dfs.core.windows.net/data/conflated/spark",
+          "hide this",
+          "customer2"
+        ],
+        "getDebugInfo": "Always",
+        "className": "com.chen.guo.SparkWordCount2",
+        "sparkJobLinkedService": {
+          "referenceName": "absJar",
+          "type": "LinkedServiceReference"
+        }
+      },
+      "linkedServiceName": "",
+      "output": {
+        "effectiveIntegrationRuntime": "DefaultIntegrationRuntime (East US)",
+        "executionDuration": 1871,
+        "durationInQueue": {
+          "integrationRuntimeQueue": 0
+        }
+      },
+      "userProperties": {},
+      "pipelineName": "spark-only2",
+      "pipelineRunId": "3fac1e5f-fc27-4d53-84d6-da83b0426b5d",
+      "status": "Failed",
+      "recoveryStatus": "None",
+      "integrationRuntimeNames": [
+        "defaultintegrationruntime"
+      ],
+      "executionDetails": {
+        "integrationRuntime": [
+          {
+            "name": "DefaultIntegrationRuntime",
+            "type": "Managed",
+            "location": "East US"
+          }
+        ]
+      }
+    },
+    {
+      "activityRunEnd": "2019-08-09T01:58:18.3520982Z",
+      "activityName": "Spark-WC-c1",
+      "activityRunStart": "2019-08-09T01:26:50.477948Z",
+      "activityType": "HDInsightSpark",
+      "durationInMs": 1887874,
+      "retryAttempt": null,
+      "error": {
+        "errorCode": "2011",
+        "message": "The cluster not found, ClusterEndpoint=https://x42972f54-8d64-4da3-a3b4-33290a5eb8a0.azurehdinsight.net/",
+        "failureType": "UserError",
+        "target": "Spark-WC-c1"
+      },
+      "activityRunId": "618e6536-4e3a-4e46-b858-30434d1f5c66",
+      "iterationHash": "",
+      "input": {
+        "rootPath": "demo-jars/wordcount/spark",
+        "entryFilePath": "chen-spark-jobs-1.0-SNAPSHOT-all.jar",
+        "arguments": [
+          "abfss://economic-graph@adl0linkedin.dfs.core.windows.net/data/eg/linkedin-eg.txt",
+          "adl0enterprise.dfs.core.windows.net/data/gutenberg/davinci.txt",
+          "adl0conflated.dfs.core.windows.net/data/conflated/spark",
+          "hide this",
+          "customer1"
+        ],
+        "getDebugInfo": "Always",
+        "className": "com.chen.guo.SparkWordCount2",
+        "sparkJobLinkedService": {
+          "referenceName": "absJar",
+          "type": "LinkedServiceReference"
+        }
+      },
+      "linkedServiceName": "",
+      "output": {
+        "effectiveIntegrationRuntime": "DefaultIntegrationRuntime (East US)",
+        "executionDuration": 1886,
+        "durationInQueue": {
+          "integrationRuntimeQueue": 1
+        }
+      },
+      "userProperties": {},
+      "pipelineName": "spark-only2",
+      "pipelineRunId": "3fac1e5f-fc27-4d53-84d6-da83b0426b5d",
+      "status": "Failed",
+      "recoveryStatus": "None",
+      "integrationRuntimeNames": [
+        "defaultintegrationruntime"
+      ],
+      "executionDetails": {
+        "integrationRuntime": [
+          {
+            "name": "DefaultIntegrationRuntime",
+            "type": "Managed",
+            "location": "East US"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -70,8 +70,9 @@ public class ADFPipelineExecutioner {
 
     ADFPipelineExecutioner executioner = new ADFPipelineExecutioner(credentials, resourceGroupName, datafactoryName);
     try {
-      //HttpUriRequest request = executioner.getPipelineExecutionUri(bodyJson, token, "spark-only");
-      HttpUriRequest request = executioner.getPipelineMonitorUri(token, "43ace3ef-0b8a-4449-bd3f-a81c139cdd12");
+      //HttpUriRequest request = executioner.requestPipelineExecution(bodyJson, token, "spark-only");
+      //HttpUriRequest request = executioner.requestPipelineRunStatus(token, "24156418-335f-4337-a9f8-804ddb7274e9");
+      HttpUriRequest request = executioner.requestPipelineActivityRuns(token, "3fac1e5f-fc27-4d53-84d6-da83b0426b5d");
 
       HttpResponse response = httpclient.execute(request);
       HttpEntity entity = response.getEntity();
@@ -87,18 +88,32 @@ public class ADFPipelineExecutioner {
     }
   }
 
-  private HttpUriRequest getPipelineExecutionUri(String bodyJson, AuthenticationResult token, String pipelineName) throws URISyntaxException, IOException {
+  private HttpUriRequest requestPipelineExecution(String bodyJson, AuthenticationResult token, String pipelineName) throws URISyntaxException, IOException {
     URIBuilder pipelineExecutionBuilder = new URIBuilder(buildUri(String.format("pipelines/%s/createRun", pipelineName)));
     System.out.println("Built URI: " + pipelineExecutionBuilder.toString());
     URI uri = pipelineExecutionBuilder.build();
     return postRequest(bodyJson, token, uri);
   }
 
-  private HttpUriRequest getPipelineMonitorUri(AuthenticationResult token, String pipelineRunId) throws URISyntaxException, IOException {
+  /**
+   * @param token
+   * @param pipelineRunId this is the RunGroupId, or the runId for the pipeline, not the activity
+   * @return
+   * @throws URISyntaxException
+   * @throws IOException
+   */
+  private HttpUriRequest requestPipelineRunStatus(AuthenticationResult token, String pipelineRunId) throws URISyntaxException, IOException {
     URIBuilder runMonitorBuilder = new URIBuilder(buildUri(String.format("pipelineruns/%s", pipelineRunId)));
     System.out.println("Built URI: " + runMonitorBuilder.toString());
     URI uri = runMonitorBuilder.build();
     return getRequest(token, uri);
+  }
+
+  private HttpUriRequest requestPipelineActivityRuns(AuthenticationResult token, String pipelineRunId) throws URISyntaxException, IOException {
+    URIBuilder runMonitorBuilder = new URIBuilder(buildUri(String.format("pipelineruns/%s/queryActivityruns", pipelineRunId)));
+    System.out.println("Built URI: " + runMonitorBuilder.toString());
+    URI uri = runMonitorBuilder.build();
+    return postRequest("", token, uri);
   }
 
   private HttpUriRequest postRequest(String bodyJson, AuthenticationResult token, URI uri) throws IOException {
