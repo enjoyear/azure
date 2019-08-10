@@ -34,16 +34,21 @@ public class ADFPipelineExecutioner {
   private final String _resourceGroupName;
   private final String _dataFactoryName;
   private final String _actionUriTemplate;
-  private static final String apiVersion = "2018-06-01";
+  private static final String apiVersion20180601 = "?api-version=2018-06-01";
+  private static final String apiVersion20180601Preview = "?api-version=2018-06-01-preview";
+  private final String _hdinsightTemplate;
 
   public ADFPipelineExecutioner(ICredentialProvider credentials, String resourceGroupName, String dataFactoryName) {
     _credentials = credentials;
     _resourceGroupName = resourceGroupName;
     _dataFactoryName = dataFactoryName;
-    String factoryManagementUri = String.format(
-        "https://management.azure.com/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DataFactory/factories/%s",
-        credentials.getSubscriptionId(), resourceGroupName, dataFactoryName);
-    _actionUriTemplate = factoryManagementUri + "/%s" + String.format("?api-version=%s", apiVersion);
+    String providesPrefix = String.format("https://management.azure.com/subscriptions/%s/resourceGroups/%s/providers", credentials.getSubscriptionId(), resourceGroupName);
+
+
+    String factoryManagementUri = String.format(providesPrefix + "/Microsoft.DataFactory/factories/%s", dataFactoryName);
+    _actionUriTemplate = factoryManagementUri + "/%s" + apiVersion20180601;
+
+    _hdinsightTemplate = providesPrefix + "/Microsoft.HDInsight/clusters/%s" + apiVersion20180601Preview;
   }
 
   public static void main(String[] args) throws JsonProcessingException, MalformedURLException, ExecutionException, InterruptedException {
@@ -72,7 +77,8 @@ public class ADFPipelineExecutioner {
     try {
       //HttpUriRequest request = executioner.requestPipelineExecution(bodyJson, token, "spark-only");
       //HttpUriRequest request = executioner.requestPipelineRunStatus(token, "24156418-335f-4337-a9f8-804ddb7274e9");
-      HttpUriRequest request = executioner.requestPipelineActivityRuns(token, "3fac1e5f-fc27-4d53-84d6-da83b0426b5d");
+      //HttpUriRequest request = executioner.requestPipelineActivityRuns(token, "861e35b2-8646-440d-9caf-ad1bdf599f85");
+      HttpUriRequest request = executioner.requestHDInsightInfo(token, "s8c7205f8-081e-49c6-a4fa-3d8528be2c0e");
 
       HttpResponse response = httpclient.execute(request);
       HttpEntity entity = response.getEntity();
@@ -89,7 +95,7 @@ public class ADFPipelineExecutioner {
   }
 
   private HttpUriRequest requestPipelineExecution(String bodyJson, AuthenticationResult token, String pipelineName) throws URISyntaxException, IOException {
-    URIBuilder pipelineExecutionBuilder = new URIBuilder(buildUri(String.format("pipelines/%s/createRun", pipelineName)));
+    URIBuilder pipelineExecutionBuilder = new URIBuilder(buildPipelineActionUri(String.format("pipelines/%s/createRun", pipelineName)));
     System.out.println("Built URI: " + pipelineExecutionBuilder.toString());
     URI uri = pipelineExecutionBuilder.build();
     return postRequest(bodyJson, token, uri);
@@ -103,17 +109,24 @@ public class ADFPipelineExecutioner {
    * @throws IOException
    */
   private HttpUriRequest requestPipelineRunStatus(AuthenticationResult token, String pipelineRunId) throws URISyntaxException, IOException {
-    URIBuilder runMonitorBuilder = new URIBuilder(buildUri(String.format("pipelineruns/%s", pipelineRunId)));
+    URIBuilder runMonitorBuilder = new URIBuilder(buildPipelineActionUri(String.format("pipelineruns/%s", pipelineRunId)));
     System.out.println("Built URI: " + runMonitorBuilder.toString());
     URI uri = runMonitorBuilder.build();
     return getRequest(token, uri);
   }
 
   private HttpUriRequest requestPipelineActivityRuns(AuthenticationResult token, String pipelineRunId) throws URISyntaxException, IOException {
-    URIBuilder runMonitorBuilder = new URIBuilder(buildUri(String.format("pipelineruns/%s/queryActivityruns", pipelineRunId)));
+    URIBuilder runMonitorBuilder = new URIBuilder(buildPipelineActionUri(String.format("pipelineruns/%s/queryActivityruns", pipelineRunId)));
     System.out.println("Built URI: " + runMonitorBuilder.toString());
     URI uri = runMonitorBuilder.build();
     return postRequest("", token, uri);
+  }
+
+  private HttpUriRequest requestHDInsightInfo(AuthenticationResult token, String hdinsightName) throws URISyntaxException, IOException {
+    URIBuilder runMonitorBuilder = new URIBuilder(String.format(_hdinsightTemplate, hdinsightName));
+    System.out.println("Built URI: " + runMonitorBuilder.toString());
+    URI uri = runMonitorBuilder.build();
+    return getRequest(token, uri);
   }
 
   private HttpUriRequest postRequest(String bodyJson, AuthenticationResult token, URI uri) throws IOException {
@@ -136,7 +149,7 @@ public class ADFPipelineExecutioner {
     return request;
   }
 
-  private String buildUri(String action) {
+  private String buildPipelineActionUri(String action) {
     return String.format(_actionUriTemplate, action);
   }
 }
