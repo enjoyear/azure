@@ -41,7 +41,7 @@ object SparkWordCount2 extends App {
 
     val spark: SparkSession =
       SparkSession.builder()
-        .appName(s"WC-example-$clientName") //a spark application processing multiple customers' data
+        .appName(s"WC-$clientName-${System.currentTimeMillis()}") //a spark application processing multiple customers' data
         //.config("spark.yarn.maxAppAttempts", 1)
         //.config("spark.submit.deployMode", "cluster")
         //        .config("spark.hadoop.cloneConf", "true")

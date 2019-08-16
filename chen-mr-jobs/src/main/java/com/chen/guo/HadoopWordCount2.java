@@ -85,7 +85,7 @@ public class HadoopWordCount2 {
     conf.set("fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token");
 
     //https://hadoop.apache.org/docs/r2.7.3/api/index.html?org/apache/hadoop/mapreduce/Job.html
-    Job job = Job.getInstance(conf, "WC-" + clientName);
+    Job job = Job.getInstance(conf, "WC-" + clientName + "-" + System.currentTimeMillis());
     job.setJarByClass(HadoopWordCount2.class);
     job.setMapperClass(TokenizerMapper.class);
     job.setCombinerClass(IntSumReducer.class);
