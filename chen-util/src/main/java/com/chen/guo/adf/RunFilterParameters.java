@@ -30,6 +30,10 @@ public class RunFilterParameters {
   //List of filters
   private RunQueryFilter[] _filters;
 
+  /**
+   * Data Factory only stores pipeline run data for 45 days.
+   * To persist more, check https://docs.microsoft.com/en-us/azure/data-factory/monitor-programmatically#data-range
+   */
   //The time at or after which the run event was updated in 'ISO 8601' format.
   private String _lastUpdatedAfter;
 

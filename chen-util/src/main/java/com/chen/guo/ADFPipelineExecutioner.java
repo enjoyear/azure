@@ -60,10 +60,13 @@ public class ADFPipelineExecutioner {
     ExecutorService service = Executors.newCachedThreadPool();
     AuthenticationContext authContext = new AuthenticationContext(authHelper.getAuthorityUri(), false, service);
     AuthenticationResult token = authContext.acquireToken(AuthenticationHelper.managementResourceUri, credentials.getClientCredential(sp), AuthenticationHelper.authenticationCallback).get();
-    System.out.println(token.getAccessToken());
-    System.out.println(token.getExpiresOnDate());
-    System.out.println(token.getUserInfo());
-    System.out.println(token.getRefreshToken());
+    System.out.println("****** Acquired Token ******");
+    System.out.println("Access Token: " + token.getAccessToken());
+    System.out.println("Token Expiration" + token.getExpiresOnDate());
+    System.out.println("Token User Info" + token.getUserInfo());
+    System.out.println("Refresh Token" + token.getRefreshToken());
+    System.out.println("****** Acquired Token ******");
+    System.out.println("****** ****** ****** ****** ");
 
     HttpClient httpclient = HttpClients.createDefault();
 
@@ -121,6 +124,7 @@ public class ADFPipelineExecutioner {
 
   /**
    * get activity runs for a specific pipeline run
+   * https://docs.microsoft.com/en-us/rest/api/datafactory/activityruns/querybypipelinerun
    */
   private HttpUriRequest getPipelineActivityRuns(AuthenticationResult token, String pipelineRunId) throws URISyntaxException, IOException {
     URIBuilder runMonitorBuilder = new URIBuilder(buildPipelineActionUri(String.format("pipelineruns/%s/queryActivityruns", pipelineRunId)));
@@ -141,20 +145,22 @@ public class ADFPipelineExecutioner {
 
   /**
    * query pipeline runs based on filters
+   * https://docs.microsoft.com/en-us/rest/api/datafactory/pipelineruns/querybyfactory
+   * https://docs.microsoft.com/en-us/azure/data-factory/monitor-programmatically#data-range
    */
   private HttpUriRequest queryPipelineExecutions(AuthenticationResult token) throws URISyntaxException, IOException {
     RunFilterParameters parameters = new RunFilterParameters();
-    parameters.setLastUpdatedAfter("2019-08-10T00:36:44.3345758Z");
-    parameters.setLastUpdatedBefore("2018-08-14T23:49:48.3686473Z");
+
+    parameters.setLastUpdatedAfter("2019-08-14T00:00:00.0000000Z");
+    //parameters.setLastUpdatedBefore("2018-08-14T23:49:48.3686473Z");
 
     RunFilterParameters.RunQueryFilter filter = new RunFilterParameters.RunQueryFilter(
         RunFilterParameters.RunQueryFilter.RunQueryFilterOperand.PipelineName,
         RunFilterParameters.RunQueryFilter.RunQueryFilterOperator.Equals,
-        new String[]{"hdp-only2"});
-    parameters.setFilters(new RunFilterParameters.RunQueryFilter[]{filter});
+        new String[]{"spark-only2"});
+    //parameters.setFilters(new RunFilterParameters.RunQueryFilter[]{filter});
     String filterJson = parameters.toString();
     System.out.println(filterJson);
-
 
     URIBuilder pipelineExecutionBuilder = new URIBuilder(buildPipelineActionUri("queryPipelineRuns"));
     System.out.println("Built URI: " + pipelineExecutionBuilder.toString());
