@@ -35,16 +35,15 @@ public class HadoopWordCount {
     job.setOutputValueClass(IntWritable.class);
 
     for (int i = 0; i < otherArgs.length - 2; i++) {
-      FileInputFormat.addInputPath(job, new Path(otherArgs[i]));
+      Path path = new Path(otherArgs[i]);
+      System.out.println(String.format("Input path: %s", path.toString()));
+      FileInputFormat.addInputPath(job, path);
     }
 
     FileSystem fs = FileSystem.get(conf);
-    Path outputDir = new Path(otherArgs[(otherArgs.length - 2)], Long.toString(System.currentTimeMillis()));
-    System.out.println(String.format("FS: %s. Output path: %s", fs.toString(), outputDir.toString()));
+    Path outputDir = new Path(otherArgs[(otherArgs.length - 1)], Long.toString(System.currentTimeMillis()));
+    System.out.println(String.format("Output path: %s. FS: %s. ", outputDir.toString(), fs.toString()));
     FileOutputFormat.setOutputPath(job, outputDir);
-
-    String storageAccountConnectionString = otherArgs[(otherArgs.length - 1)];
-    CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, "sas-token");
 
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }

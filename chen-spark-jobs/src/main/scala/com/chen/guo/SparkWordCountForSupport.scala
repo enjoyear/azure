@@ -5,7 +5,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import org.slf4j.{Logger, LoggerFactory}
 
-object SparkWordCount3 extends App {
+object SparkWordCountForSupport extends App {
   val logger: Logger = LoggerFactory.getLogger(getClass.getName)
 
   for (arg <- args) {
