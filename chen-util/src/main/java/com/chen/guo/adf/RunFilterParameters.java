@@ -22,6 +22,7 @@ import lombok.experimental.Accessors;
 public class RunFilterParameters {
   public final static ObjectWriter objectWriter = new ObjectMapper()
       .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+      //.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false)
       .writerWithDefaultPrettyPrinter();
 
   //The continuation token for getting the next page of results. Null for first page.

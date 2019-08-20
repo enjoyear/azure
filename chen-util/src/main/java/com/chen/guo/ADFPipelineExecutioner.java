@@ -151,14 +151,14 @@ public class ADFPipelineExecutioner {
   private HttpUriRequest queryPipelineExecutions(AuthenticationResult token) throws URISyntaxException, IOException {
     RunFilterParameters parameters = new RunFilterParameters();
 
-    parameters.setLastUpdatedAfter("2019-08-14T00:00:00.0000000Z");
-    //parameters.setLastUpdatedBefore("2018-08-14T23:49:48.3686473Z");
+    parameters.setLastUpdatedAfter("2019-08-20T00:00:00.0000000Z");
+    parameters.setLastUpdatedBefore("2019-08-21T23:49:48.3686473Z");
 
     RunFilterParameters.RunQueryFilter filter = new RunFilterParameters.RunQueryFilter(
         RunFilterParameters.RunQueryFilter.RunQueryFilterOperand.PipelineName,
         RunFilterParameters.RunQueryFilter.RunQueryFilterOperator.Equals,
-        new String[]{"spark-only2"});
-    //parameters.setFilters(new RunFilterParameters.RunQueryFilter[]{filter});
+        new String[]{"spark-only"});
+    parameters.setFilters(new RunFilterParameters.RunQueryFilter[]{filter});
     String filterJson = parameters.toString();
     System.out.println(filterJson);
 
