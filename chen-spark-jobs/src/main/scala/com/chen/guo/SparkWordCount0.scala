@@ -2,9 +2,10 @@ package com.chen.guo
 
 import java.io.StringReader
 
-import com.chen.guo.security.KeyVaultADALAuthenticator
+import com.chen.guo.auth.CredentialsFileProvider
+import com.chen.guo.auth.security.KeyVaultADALAuthenticator
+import com.chen.guo.storage.BlobBasics
 import com.microsoft.azure.keyvault.KeyVaultClient
-import com.microsoft.azure.storage.CloudStorageAccount
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -41,9 +42,7 @@ object SparkWordCount0 extends App {
 
   val storageAccountConnectionString = args(args.length - 1)
   println(String.format("Storage Account Connection String: %s", storageAccountConnectionString))
-  val storageAccount = CloudStorageAccount.parse(storageAccountConnectionString)
-  val cloudBlobClient = storageAccount.createCloudBlobClient
-  val container = cloudBlobClient.getContainerReference("demo-jars")
+  val container = new BlobBasics(storageAccountConnectionString).getBlobContainer("demo-jars")
   val blockRef = container.getBlockBlobReference("properties/azure_credentials.properties")
   val s = blockRef.downloadText
   println("Blob Content: " + s)

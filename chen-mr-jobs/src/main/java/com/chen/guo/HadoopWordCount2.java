@@ -1,5 +1,6 @@
 package com.chen.guo;
 
+import com.chen.guo.auth.CredentialsFileProvider;
 import com.chen.guo.job.IntSumReducer;
 import com.chen.guo.job.TokenizerMapper;
 import com.microsoft.azure.storage.StorageException;

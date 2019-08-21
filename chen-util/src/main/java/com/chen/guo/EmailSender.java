@@ -1,5 +1,8 @@
 package com.chen.guo;
 
+import com.chen.guo.auth.AuthenticationHelper;
+import com.chen.guo.auth.CredentialsFileProvider;
+import com.chen.guo.auth.ICredentialProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.aad.adal4j.AuthenticationContext;

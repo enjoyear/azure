@@ -1,8 +1,8 @@
-package com.chen.guo.security;
+package com.chen.guo.auth.security;
 
-import com.chen.guo.AuthenticationHelper;
-import com.chen.guo.CredentialsFileProvider;
-import com.chen.guo.ICredentialProvider;
+import com.chen.guo.auth.AuthenticationHelper;
+import com.chen.guo.auth.CredentialsFileProvider;
+import com.chen.guo.auth.ICredentialProvider;
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 import com.microsoft.aad.adal4j.ClientCredential;

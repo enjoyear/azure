@@ -1,4 +1,4 @@
-package com.chen.guo;
+package com.chen.guo.auth;
 
 import com.microsoft.aad.adal4j.AuthenticationCallback;
 

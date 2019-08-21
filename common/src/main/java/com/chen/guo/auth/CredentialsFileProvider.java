@@ -1,12 +1,11 @@
-package com.chen.guo;
+package com.chen.guo.auth;
 
-import com.chen.guo.security.KeyVaultADALAuthenticator;
+import com.chen.guo.auth.security.KeyVaultADALAuthenticator;
+import com.chen.guo.storage.BlobBasics;
 import com.microsoft.aad.adal4j.ClientCredential;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
-import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.rest.credentials.ServiceClientCredentials;
@@ -81,9 +80,7 @@ public class CredentialsFileProvider implements ICredentialProvider {
    */
   public static String getSecretFromSA(String storageAccountConnectionString, String secretName) throws URISyntaxException, InvalidKeyException, StorageException, IOException {
     System.out.println(String.format("Storage Account Connection String: %s", storageAccountConnectionString));
-    CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageAccountConnectionString);
-    CloudBlobClient cloudBlobClient = storageAccount.createCloudBlobClient();
-    CloudBlobContainer container = cloudBlobClient.getContainerReference("demo-jars");
+    CloudBlobContainer container = new BlobBasics(storageAccountConnectionString).getBlobContainer("demo-jars");
     CloudBlockBlob blockRef = container.getBlockBlobReference("properties/azure_credentials.properties");
     String s = blockRef.downloadText();
     System.out.println("Loaded credential file blob content: " + s);

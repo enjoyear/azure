@@ -1,5 +1,6 @@
 package com.chen.guo
 
+import com.chen.guo.auth.CredentialsFileProvider
 import org.apache.hadoop.fs.Path
 import org.apache.log4j.{Level, LogManager}
 import org.apache.spark.rdd.RDD
