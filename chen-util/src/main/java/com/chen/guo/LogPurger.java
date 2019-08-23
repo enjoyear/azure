@@ -9,6 +9,7 @@ import org.joda.time.DateTime;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.Date;
+import java.util.Iterator;
 
 /**
  * See examples here
@@ -23,7 +24,7 @@ public class LogPurger {
   public static void main(String[] args) throws InvalidKeyException, StorageException, URISyntaxException {
     DateTime jodaDate = new DateTime(2019, 8, 21, 17, 20);
     Date date = jodaDate.toDate();
-    String saConnectionString = "";
+    String saConnectionString = args[0];
     LogPurger logPurger = new LogPurger(saConnectionString, "sparkjobs", date);
     logPurger.printBlobs();
   }
@@ -57,9 +58,12 @@ public class LogPurger {
   private int flatScan() throws URISyntaxException, StorageException {
     int count = 0;
     Iterable<ListBlobItem> blobs = _container.listBlobs("", true);
-    for (ListBlobItem blob : blobs) {
+    Iterator<ListBlobItem> iterator = blobs.iterator();
+    while (iterator.hasNext()) {
       ++count;
-      blobPrint(blob);
+      long start = System.currentTimeMillis();
+      blobPrint(iterator.next());
+      log.info(String.format("list time: %s", System.currentTimeMillis() - start));
     }
     return count;
   }
@@ -117,7 +121,9 @@ public class LogPurger {
     if (lastModified.before(_purgeDate)) {
       log.info(String.format("[Deleting]%s: %s", path, lastModified));
       CloudBlockBlob blockRef = _container.getBlockBlobReference(path);
+      long start = System.currentTimeMillis();
       blockRef.delete();
+      log.info(String.format("delete time: %s", System.currentTimeMillis() - start));
     } else {
       log.info(String.format("[Keep]%s: %s", path, lastModified));
     }
