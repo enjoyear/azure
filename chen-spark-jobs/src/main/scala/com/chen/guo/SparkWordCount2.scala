@@ -1,6 +1,7 @@
 package com.chen.guo
 
 import com.chen.guo.auth.CredentialsFileProvider
+import com.chen.guo.db.fakedCosmos
 import org.apache.hadoop.fs.Path
 import org.apache.log4j.{Level, LogManager}
 import org.apache.spark.rdd.RDD
@@ -28,15 +29,11 @@ object SparkWordCount2 extends App {
   }
   val storageAccountConnectionString = args(args.length - 2)
 
-  val cosmos = Map(
-    "customer1" -> "6358f0cd-ce12-4e89-be99-66b16637880e",
-    "customer2" -> "a75cef49-07f3-4028-bd1b-38731cf1ff4f")
-
   val clientNames = args.last
   private val clientNamesArray: Array[String] = clientNames.split(",")
   clientNamesArray.foreach(cn => {
     val clientName = cn.toLowerCase()
-    val clientId = cosmos(clientName)
+    val clientId = fakedCosmos.getId(clientName)
     val clientSecret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, clientName + "-secret")
     logger.info(s"Got id $clientId secret $clientSecret for $clientName")
 
