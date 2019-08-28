@@ -1,4 +1,4 @@
-package com.chen.guo
+package com.chen.guo.fun
 
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, ThreadFactory}
