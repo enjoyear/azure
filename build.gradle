@@ -57,6 +57,9 @@ allprojects {
         compile group: 'log4j', name: 'log4j', version: '1.2.17'
 
         compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure', version: '2.7.3.2.6.5.3008-11'
+        compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure-datalake', version: '2.7.3.2.6.5.3008-11'
+        //compileOnly group: 'com.microsoft.azure', name: 'azure-data-lake-store-sdk', version: '2.3.6'
+
         //The root package: Azure is the entry point for accessing resource management APIs.
         compileOnly group: 'com.microsoft.azure', name: 'azure', version: '1.24.1'
 

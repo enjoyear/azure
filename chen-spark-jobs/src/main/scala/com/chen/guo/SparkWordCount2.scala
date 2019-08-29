@@ -81,6 +81,12 @@ object SparkWordCount2 extends App {
     logger.info(s"Got conflated counts: ${counts.collect().mkString("\n")}")
     counts.coalesce(1).saveAsTextFile(outputDir.toString)
     logger.info(s"Done for $clientName")
+
+    if (clientName == "customer2") {
+      logger.info(s"Sleep for customer2 for 60seconds")
+      Thread.sleep(1000 * 60)
+    }
+
     spark.stop()
     logger.info(s"Stopped the context")
   })

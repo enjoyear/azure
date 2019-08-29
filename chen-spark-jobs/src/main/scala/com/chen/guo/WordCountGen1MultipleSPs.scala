@@ -1,5 +1,9 @@
 package com.chen.guo
 
+import java.util
+import java.util.Map
+import java.util.function.Consumer
+
 import com.chen.guo.auth.CredentialsFileProvider
 import com.chen.guo.db.fakedCosmos
 import org.apache.hadoop.fs.Path
@@ -8,7 +12,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import org.slf4j.{Logger, LoggerFactory}
 
-object WordCountGen2MultipleSPs extends App {
+object WordCountGen1MultipleSPs extends App {
   val logger: Logger = LoggerFactory.getLogger(getClass.getName)
   LogManager.getRootLogger.setLevel(Level.DEBUG)
   LogManager.getLogger("log4j.logger.org.apache.hadoop.fs").setLevel(Level.DEBUG)
@@ -45,17 +49,26 @@ object WordCountGen2MultipleSPs extends App {
   val client2Id = fakedCosmos.getId(fakedCosmos.customer2)
   val client2Secret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, fakedCosmos.customer2 + "-secret")
   /**
-    * https://hadoop.apache.org/docs/r3.2.0/hadoop-azure/testing_azure.html#Testing_the_Azure_ABFS_Client
+    * https://hadoop.apache.org/docs/r2.8.0/hadoop-azure-datalake/index.html
     * https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-quickstart-create-databricks-account
     *
-    * org.apache.hadoop.fs.azurebfs.AbfsConfiguration
-    * public String getPasswordString(key: String) throws IOException
+    * "fs.adl.oauth2.access.token.provider.type": "ClientCredential",
+    * "fs.adl.oauth2.client.id": "6358f0cd-ce12-4e89-be99-66b16637880e",
+    * "fs.adl.oauth2.credential": "8pTfD[X6bDS1eVtWi8nUKvuCj+=/9k=X",
+    * "fs.adl.oauth2.refresh.url": "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token",
     *
-    * var passchars: Array[Char] = rawConfig.getPassword(accountConf(key)) => allows account specific settings
+    *
+    * org.apache.hadoop.fs.adl.AdlConfKeys
+    *
+    * org.apache.hadoop.fs.adl.AdlFileSystem
+    * private AccessTokenProvider getAccessTokenProvider(config: Configuration)
+    *
     */
   builder
-    .config("spark.hadoop.fs.azure.account.oauth2.client.id.adl0linkedin.dfs.core.windows.net", client2Id)
-    .config("spark.hadoop.fs.azure.account.oauth2.client.secret.adl0linkedin.dfs.core.windows.net", client2Secret)
+    .config("spark.hadoop.fs.adl.oauth2.access.token.provider.type", "ClientCredential")
+    .config("spark.hadoop.fs.adl.oauth2.client.id", client2Id)
+    .config("spark.hadoop.fs.adl.oauth2.credential", client2Secret)
+    .config("spark.hadoop.fs.adl.oauth2.refresh.url", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
 
   val spark: SparkSession = builder.getOrCreate()
 
@@ -64,12 +77,11 @@ object WordCountGen2MultipleSPs extends App {
 
   val sc = spark.sparkContext
   logger.info(s"Printing Hadoop configurations")
-  logger.info("k2.akv.accessor.secret ->" + sc.hadoopConfiguration.get("k2.akv.accessor.secret", "unknown"))
-  //  sc.hadoopConfiguration.forEach(new Consumer[Map.Entry[String, String]] {
-  //    override def accept(kvp: util.Map.Entry[String, String]): Unit = {
-  //      logger.info(s"${kvp.getKey} -> ${kvp.getValue}")
-  //    }
-  //  })
+  sc.hadoopConfiguration.forEach(new Consumer[Map.Entry[String, String]] {
+    override def accept(kvp: util.Map.Entry[String, String]): Unit = {
+      logger.info(s"${kvp.getKey} -> ${kvp.getValue}")
+    }
+  })
 
   var inputs: RDD[String] = sc.emptyRDD[String]
   val egDataFullPath = args(0)
