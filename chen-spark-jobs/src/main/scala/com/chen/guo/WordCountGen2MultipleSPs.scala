@@ -1,5 +1,9 @@
 package com.chen.guo
 
+import java.util
+import java.util.Map
+import java.util.function.Consumer
+
 import com.chen.guo.auth.CredentialsFileProvider
 import com.chen.guo.db.fakedCosmos
 import org.apache.hadoop.fs.Path
@@ -8,7 +12,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import org.slf4j.{Logger, LoggerFactory}
 
-object SparkWordCount2Multiple extends App {
+object WordCountGen2MultipleSPs extends App {
   val logger: Logger = LoggerFactory.getLogger(getClass.getName)
   LogManager.getRootLogger.setLevel(Level.DEBUG)
   LogManager.getLogger("log4j.logger.org.apache.hadoop.fs").setLevel(Level.DEBUG)
@@ -49,20 +53,27 @@ object SparkWordCount2Multiple extends App {
 
   val client2Id = fakedCosmos.getId(fakedCosmos.customer2)
   val client2Secret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, fakedCosmos.customer2 + "-secret")
+  /**
+    * https://hadoop.apache.org/docs/r3.2.0/hadoop-azure/testing_azure.html#Testing_the_Azure_ABFS_Client
+    * https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-quickstart-create-databricks-account
+    */
   builder
     .config("spark.hadoop.fs.azure.account.oauth2.client.id.adl0linkedin.dfs.core.windows.net", client2Id)
     .config("spark.hadoop.fs.azure.account.oauth2.client.secret.adl0linkedin.dfs.core.windows.net", client2Secret)
 
   val spark: SparkSession = builder.getOrCreate()
 
-  logger.info(s"Printing configurations")
-  logger.info(s"Got secret: ${spark.conf.get("k2.akv.accessor.secret", "unknown")}")
-  logger.info(s"Got secret: ${spark.conf.get("spark.k2.akv.accessor.secret", "unknown")}")
-  logger.info(s"Got secret: ${spark.conf.get("spark.hadoop.k2.akv.accessor.secret", "unknown")}")
-
+  logger.info(s"Printing Spark configurations")
   spark.conf.getAll.foreach(x => logger.info(s"${x._1} -> ${x._2}"))
 
   val sc = spark.sparkContext
+  logger.info(s"Printing Hadoop configurations")
+  sc.hadoopConfiguration.forEach(new Consumer[Map.Entry[String, String]] {
+    override def accept(kvp: util.Map.Entry[String, String]): Unit = {
+      logger.info(s"${kvp.getKey} -> ${kvp.getValue}")
+    }
+  })
+
   var inputs: RDD[String] = sc.emptyRDD[String]
   val egDataFullPath = args(0)
   logger.info(s"In application ${sc.applicationId}: Get EG data path $egDataFullPath")
