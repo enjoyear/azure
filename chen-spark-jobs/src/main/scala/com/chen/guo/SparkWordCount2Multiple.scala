@@ -42,16 +42,24 @@ object SparkWordCount2Multiple extends App {
 
   val client1Id = fakedCosmos.getId(fakedCosmos.customer1)
   val client1Secret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, fakedCosmos.customer1 + "-secret")
-
   builder
     .config("spark.hadoop.fs.azure.account.oauth2.client.id", client1Id)
     .config("spark.hadoop.fs.azure.account.oauth2.client.secret", client1Secret)
     .config("spark.hadoop.fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
 
+  //  val client2Id = fakedCosmos.getId(fakedCosmos.customer2)
+  //  val client2Secret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, fakedCosmos.customer2 + "-secret")
+  //  builder
+  //    .config("spark.hadoop.fs.azure.account.oauth2.client.id.adl0linkedin", client2Id)
+  //    .config("spark.hadoop.fs.azure.account.oauth2.client.secret.adl0linkedin", client2Secret)
 
   val spark: SparkSession = builder.getOrCreate()
 
   logger.info(s"Printing configurations")
+  logger.info(s"Got secret: ${spark.conf.get("k2.akv.accessor.secret", "unknown")}")
+  logger.info(s"Got secret: ${spark.conf.get("spark.k2.akv.accessor.secret", "unknown")}")
+  logger.info(s"Got secret: ${spark.conf.get("spark.hadoop.k2.akv.accessor.secret", "unknown")}")
+
   spark.conf.getAll.foreach(x => if (x._1.startsWith("spark.hadoop")) logger.info(s"${x._1} -> ${x._2}"))
   logger.info(s"spark.master -> ${spark.conf.get("spark.master")}")
   logger.info(s"spark.submit.deployMode -> ${spark.conf.get("spark.submit.deployMode")}")
@@ -60,13 +68,19 @@ object SparkWordCount2Multiple extends App {
   var inputs: RDD[String] = sc.emptyRDD[String]
   val egDataFullPath = args(0)
   logger.info(s"In application ${sc.applicationId}: Get EG data path $egDataFullPath")
-  inputs.union(sc.textFile(egDataFullPath))
+  val eg: RDD[String] = sc.textFile(egDataFullPath)
+  logger.info(s"Input Data - EG: ${eg.collect().mkString("\n")}")
+  inputs = inputs.union(eg)
 
   for (inputPathPart <- args.tail.dropRight(3)) {
     val path = s"abfss://$clientName@$inputPathPart"
     logger.info(s"Get Raw data full path: $path")
-    inputs = inputs.union(sc.textFile(path))
+    val raw = sc.textFile(path)
+    logger.info(s"Input Data - Raw: ${raw.collect().mkString("\n")}")
+    inputs = inputs.union(raw)
   }
+
+  logger.info(s"Input Data - All: ${inputs.collect().mkString("\n")}")
 
   val dest = s"abfss://$clientName@${args(args.length - 3)}"
   val outputDir = new Path(dest, System.currentTimeMillis.toString)
@@ -76,7 +90,7 @@ object SparkWordCount2Multiple extends App {
     .map(word => (word, 1))
     .reduceByKey(_ + _)
 
-  logger.info(s"Got counts")
+  logger.info(s"Got conflated counts: ${counts.collect().mkString("\n")}")
   counts.coalesce(1).saveAsTextFile(outputDir.toString)
   logger.info(s"Done for $clientName")
   spark.stop()

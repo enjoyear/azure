@@ -62,7 +62,7 @@ object SparkWordCount2 extends App {
     var inputs: RDD[String] = sc.emptyRDD[String]
     val egDataFullPath = args(0)
     logger.info(s"In application ${sc.applicationId}: Get EG data path $egDataFullPath")
-    inputs.union(sc.textFile(egDataFullPath))
+    inputs = inputs.union(sc.textFile(egDataFullPath))
 
     for (inputPathPart <- args.tail.dropRight(3)) {
       val path = s"abfss://$clientName@$inputPathPart"
@@ -78,7 +78,7 @@ object SparkWordCount2 extends App {
       .map(word => (word, 1))
       .reduceByKey(_ + _)
 
-    logger.info(s"Got counts")
+    logger.info(s"Got conflated counts: ${counts.collect().mkString("\n")}")
     counts.coalesce(1).saveAsTextFile(outputDir.toString)
     logger.info(s"Done for $clientName")
     spark.stop()
