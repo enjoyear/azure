@@ -1,7 +1,7 @@
 apply plugin: "com.github.johnrengelman.shadow"
 
 dependencies {
-    compile project(':common')
+    compile project(':azure-common')
 
     compileOnly group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.3.2.2.6.5.3008-11'
     compileOnly group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.3.2.2.6.5.3008-11'

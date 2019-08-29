@@ -52,17 +52,10 @@ object WordCountGen1MultipleSPs extends App {
     * https://hadoop.apache.org/docs/r2.8.0/hadoop-azure-datalake/index.html
     * https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-quickstart-create-databricks-account
     *
-    * "fs.adl.oauth2.access.token.provider.type": "ClientCredential",
-    * "fs.adl.oauth2.client.id": "6358f0cd-ce12-4e89-be99-66b16637880e",
-    * "fs.adl.oauth2.credential": "8pTfD[X6bDS1eVtWi8nUKvuCj+=/9k=X",
-    * "fs.adl.oauth2.refresh.url": "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token",
-    *
-    *
     * org.apache.hadoop.fs.adl.AdlConfKeys
     *
     * org.apache.hadoop.fs.adl.AdlFileSystem
     * private AccessTokenProvider getAccessTokenProvider(config: Configuration)
-    *
     */
   builder
     .config("spark.hadoop.fs.adl.oauth2.access.token.provider.type", "ClientCredential")

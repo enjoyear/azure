@@ -1,7 +1,7 @@
 apply plugin: "com.github.johnrengelman.shadow"
 
 dependencies {
-    compile project(':common')
+    compile project(':azure-common')
 
     compileOnly group: 'org.apache.hadoop', name: 'hadoop-common', version: '2.7.3.2.6.5.3008-11'
     compileOnly group: 'org.apache.hadoop', name: 'hadoop-hdfs', version: '2.7.3.2.6.5.3008-11'
