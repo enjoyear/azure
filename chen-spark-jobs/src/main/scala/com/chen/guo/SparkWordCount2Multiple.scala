@@ -47,11 +47,11 @@ object SparkWordCount2Multiple extends App {
     .config("spark.hadoop.fs.azure.account.oauth2.client.secret", client1Secret)
     .config("spark.hadoop.fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
 
-  //  val client2Id = fakedCosmos.getId(fakedCosmos.customer2)
-  //  val client2Secret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, fakedCosmos.customer2 + "-secret")
-  //  builder
-  //    .config("spark.hadoop.fs.azure.account.oauth2.client.id.adl0linkedin", client2Id)
-  //    .config("spark.hadoop.fs.azure.account.oauth2.client.secret.adl0linkedin", client2Secret)
+  val client2Id = fakedCosmos.getId(fakedCosmos.customer2)
+  val client2Secret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, fakedCosmos.customer2 + "-secret")
+  builder
+    .config("spark.hadoop.fs.azure.account.oauth2.client.id.adl0linkedin.dfs.core.windows.net", client2Id)
+    .config("spark.hadoop.fs.azure.account.oauth2.client.secret.adl0linkedin.dfs.core.windows.net", client2Secret)
 
   val spark: SparkSession = builder.getOrCreate()
 
@@ -60,9 +60,7 @@ object SparkWordCount2Multiple extends App {
   logger.info(s"Got secret: ${spark.conf.get("spark.k2.akv.accessor.secret", "unknown")}")
   logger.info(s"Got secret: ${spark.conf.get("spark.hadoop.k2.akv.accessor.secret", "unknown")}")
 
-  spark.conf.getAll.foreach(x => if (x._1.startsWith("spark.hadoop")) logger.info(s"${x._1} -> ${x._2}"))
-  logger.info(s"spark.master -> ${spark.conf.get("spark.master")}")
-  logger.info(s"spark.submit.deployMode -> ${spark.conf.get("spark.submit.deployMode")}")
+  spark.conf.getAll.foreach(x => logger.info(s"${x._1} -> ${x._2}"))
 
   val sc = spark.sparkContext
   var inputs: RDD[String] = sc.emptyRDD[String]
