@@ -3,8 +3,11 @@ package com.chen.guo
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+import org.slf4j.{Logger, LoggerFactory}
 
 object SparkWordCount extends App {
+  val logger: Logger = LoggerFactory.getLogger(getClass.getName)
+
   for (arg <- args) {
     println(s"arg: $arg")
   }
@@ -22,6 +25,9 @@ object SparkWordCount extends App {
     println(s"Got input: $arg")
     inputs = inputs.union(sc.textFile(arg))
   }
+
+  logger.info("Got customer id: " + sc.hadoopConfiguration.get("fs.azure.account.oauth2.client.id", "unknown"))
+  logger.info("Got customer secret: " + sc.hadoopConfiguration.get("fs.azure.account.oauth2.client.secret", "unknown"))
 
   val counts: RDD[(String, Int)] = inputs.flatMap(line => line.split(" "))
     .map(word => (word, 1))

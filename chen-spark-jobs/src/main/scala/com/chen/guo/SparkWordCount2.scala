@@ -8,6 +8,36 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import org.slf4j.{Logger, LoggerFactory}
 
+/**
+  * export connectionString=
+  *
+  * To execute in cluster mode:
+  * spark-submit --class com.chen.guo.SparkWordCount2 \
+  * --master yarn \
+  * --deploy-mode cluster \
+  * --conf "spark.driver.extraJavaOptions=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:8001 -Dlog4j.configuration=file:/usr/hdp/2.6.5.3008-11/spark2/conf/log4j.properties" \
+  * --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=file:/usr/hdp/2.6.5.3008-11/spark2/conf/log4j.properties" \
+  * /home/sshuser/chen-spark-jobs-1.0-SNAPSHOT-all.jar \
+  * abfss://economic-graph@adl0linkedin.dfs.core.windows.net/data/eg/linkedin-eg.txt \
+  * adl0enterprise.dfs.core.windows.net/data/gutenberg/davinci.txt \
+  * adl0conflated.dfs.core.windows.net/data/conflated/spark \
+  * $connectionString \
+  * customer1,customer2
+  *
+  * To debug in client mode:
+  * spark-submit --class com.chen.guo.SparkWordCount2 \
+  * --master yarn \
+  * --deploy-mode client \
+  * --conf "spark.driver.extraJavaOptions=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:8001 -Dlog4j.configuration=file:/usr/hdp/2.6.5.3008-11/spark2/conf/log4j.properties" \
+  * --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=file:/usr/hdp/2.6.5.3008-11/spark2/conf/log4j.properties" \
+  * /home/sshuser/chen-spark-jobs-1.0-SNAPSHOT-all.jar \
+  * abfss://economic-graph@adl0linkedin.dfs.core.windows.net/data/eg/linkedin-eg.txt \
+  * adl0enterprise.dfs.core.windows.net/data/gutenberg/davinci.txt \
+  * adl0conflated.dfs.core.windows.net/data/conflated/spark \
+  * $connectionString \
+  * customer1,customer2
+  *
+  */
 object SparkWordCount2 extends App {
   val logger: Logger = LoggerFactory.getLogger(getClass.getName)
   LogManager.getRootLogger.setLevel(Level.DEBUG)

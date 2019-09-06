@@ -78,11 +78,11 @@ public class ADFPipelineExecutioner {
 
     ADFPipelineExecutioner executioner = new ADFPipelineExecutioner(credentials, resourceGroupName, datafactoryName);
     try {
-      //HttpUriRequest request = executioner.executePipeline(token, "spark-only");
+      HttpUriRequest request = executioner.executePipeline(token, "spark-general");
       //HttpUriRequest request = executioner.getPipelineRunStatus(token, "24156418-335f-4337-a9f8-804ddb7274e9");
       //HttpUriRequest request = executioner.getPipelineActivityRuns(token, "ddb03ce9-b70e-444f-ac83-be72379eff11");
       //HttpUriRequest request = executioner.requestHDInsightInfo(token, "s8c7205f8-081e-49c6-a4fa-3d8528be2c0e");
-      HttpUriRequest request = executioner.queryPipelineExecutions(token);
+      //HttpUriRequest request = executioner.queryPipelineExecutions(token);
 
       HttpResponse response = httpclient.execute(request);
       HttpEntity entity = response.getEntity();
@@ -103,7 +103,7 @@ public class ADFPipelineExecutioner {
    */
   private HttpUriRequest executePipeline(AuthenticationResult token, String pipelineName) throws URISyntaxException, IOException {
     Map<String, String> body = new HashMap<>();
-    body.put("SasToken", "R32-PQ2n7L7Kv_-B8VpwWCtAu3FkX_QHZ6-2cgY4eZg");
+    body.put("FsCustomer", "hi");
 
     URIBuilder pipelineExecutionBuilder = new URIBuilder(buildPipelineActionUri(String.format("pipelines/%s/createRun", pipelineName)));
     System.out.println("Built URI: " + pipelineExecutionBuilder.toString());
