@@ -1,5 +1,7 @@
 package com.chen.guo
 
+import java.util.Random
+
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -21,7 +23,7 @@ object SparkWordCount extends App {
   val sc = ss.sparkContext
 
   var inputs: RDD[String] = sc.emptyRDD[String]
-  for (arg <- args.dropRight(1)) {
+  for (arg <- args.dropRight(2)) {
     println(s"Got input: $arg")
     inputs = inputs.union(sc.textFile(arg))
   }
@@ -33,10 +35,11 @@ object SparkWordCount extends App {
     .map(word => (word, 1))
     .reduceByKey(_ + _)
 
-  val dest = args(args.length - 1)
+  val dest = args(args.length - 2)
   val outputDir = new Path(dest, System.currentTimeMillis.toString)
   println(s"Saving output to: $outputDir")
 
+  Thread.sleep(1000 * new Random().nextInt(60))
   counts.coalesce(1).saveAsTextFile(outputDir.toString)
   println("Done")
 }
