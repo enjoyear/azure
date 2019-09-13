@@ -41,9 +41,10 @@ object WordCountGen1MultipleSPs extends App {
 
   val client1Id = fakedCosmos.getId(fakedCosmos.customer1)
   val client1Secret = CredentialsFileProvider.getSecretFromSA(storageAccountConnectionString, fakedCosmos.customer1 + "-secret")
+  //For ADLv2
   builder
-    .config("spark.hadoop.fs.azure.account.oauth2.client.id", client1Id)
-    .config("spark.hadoop.fs.azure.account.oauth2.client.secret", client1Secret)
+    //.config("spark.hadoop.fs.azure.account.oauth2.client.id", client1Id)
+    //.config("spark.hadoop.fs.azure.account.oauth2.client.secret", client1Secret)
     .config("spark.hadoop.fs.azure.account.oauth2.client.endpoint", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
 
   val client2Id = fakedCosmos.getId(fakedCosmos.customer2)
@@ -57,22 +58,23 @@ object WordCountGen1MultipleSPs extends App {
     * org.apache.hadoop.fs.adl.AdlFileSystem
     * private AccessTokenProvider getAccessTokenProvider(config: Configuration)
     */
+  //For ADLv1
   builder
     .config("spark.hadoop.fs.adl.oauth2.access.token.provider.type", "ClientCredential")
-    .config("spark.hadoop.fs.adl.oauth2.client.id", client2Id)
-    .config("spark.hadoop.fs.adl.oauth2.credential", client2Secret)
+    //.config("spark.hadoop.fs.adl.oauth2.client.id", client2Id)
+    //.config("spark.hadoop.fs.adl.oauth2.credential", client2Secret)
     .config("spark.hadoop.fs.adl.oauth2.refresh.url", "https://login.microsoftonline.com/2445f142-5ffc-43aa-b7d2-fb14d30c8bd3/oauth2/token")
 
   val spark: SparkSession = builder.getOrCreate()
 
-  logger.info(s"Printing Spark configurations")
+  logger.info(s"-----------  Printing Spark configurations  -----------")
   spark.conf.getAll.foreach(x => logger.info(s"${x._1} -> ${x._2}"))
 
   val sc = spark.sparkContext
-  logger.info(s"Printing Hadoop configurations")
+  logger.info(s"===========  Printing Hadoop configurations  ===========")
   sc.hadoopConfiguration.forEach(new Consumer[Map.Entry[String, String]] {
     override def accept(kvp: util.Map.Entry[String, String]): Unit = {
-      logger.info(s"${kvp.getKey} -> ${kvp.getValue}")
+      logger.info(s"${kvp.getKey} => ${kvp.getValue}")
     }
   })
 
