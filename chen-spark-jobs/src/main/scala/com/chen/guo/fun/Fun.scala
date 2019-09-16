@@ -3,12 +3,15 @@ package com.chen.guo.fun
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, ThreadFactory}
 
+import org.slf4j.{Logger, LoggerFactory}
+
 object Fun extends App {
-  private val threadId: AtomicInteger = new AtomicInteger(0)
+  val logger: Logger = LoggerFactory.getLogger(getClass.getName)
+  logger.info(System.getenv("JAVA_HOME"))
+
+  private val threadId = new AtomicInteger(0)
   private val threadPool = Executors.newFixedThreadPool(3, new ThreadFactory {
-    override def newThread(r: Runnable): Thread = {
-      new Thread(r, s"Thread-${threadId.incrementAndGet()}")
-    }
+    override def newThread(r: Runnable) = new Thread(r, s"Thread-${threadId.incrementAndGet()}")
   })
 
   threadPool.submit(new SleepTask(2000))
@@ -20,9 +23,9 @@ object Fun extends App {
 
   class SleepTask(sleep: Long) extends Runnable {
     override def run(): Unit = {
-      println(s"Thread ${Thread.currentThread().getName} sleeping for $sleep milliseconds...")
+      logger.info(s"Thread ${Thread.currentThread().getName} sleeping for $sleep milliseconds...")
       Thread.sleep(sleep)
-      println(s"Thread ${Thread.currentThread().getName} wakes up after $sleep milliseconds")
+      logger.info(s"Thread ${Thread.currentThread().getName} wakes up after $sleep milliseconds")
     }
   }
 
