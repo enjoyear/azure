@@ -53,7 +53,7 @@ object SparkWordCount extends App {
     override def getSubscriptionId: String = "c3b5358d-d824-450c-badc-734462b9bbf1"
   }
 
-  val kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, "spi-cdppoc-ei"))
-  val secret = kvClient.getSecret(vaultURL, "dummy-key")
-  logger.info("Fetched secret for dummy-key: " + secret.value)
+//  val kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, "spi-cdppoc-ei"))
+//  val secret = kvClient.getSecret(vaultURL, "dummy-key")
+//  logger.info("Fetched secret for dummy-key: " + secret.value)
 }

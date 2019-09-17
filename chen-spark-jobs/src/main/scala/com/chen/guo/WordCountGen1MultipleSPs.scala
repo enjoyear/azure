@@ -10,28 +10,27 @@ import org.apache.hadoop.fs.Path
 import org.apache.log4j.{Level, LogManager}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{Logger, LoggerFactory, MDC}
 
 object WordCountGen1MultipleSPs extends App {
+  val pipelineRunId = args(4)
+  MDC.put("pipeline_runid", pipelineRunId)
+  MDC.put("activity_runid", "activity")
+
   val logger: Logger = LoggerFactory.getLogger(getClass.getName)
   LogManager.getRootLogger.setLevel(Level.DEBUG)
   LogManager.getLogger("log4j.logger.org.apache.hadoop.fs").setLevel(Level.DEBUG)
 
-  /**
-    * 1st arg: full eg path
-    * 2nd arg: partial customer2 raw data path
-    * 3rd arg: partial conflated output path
-    * 4th arg: connection string
-    * 5th arg: customer2 name
-    */
   for (arg <- args) {
     logger.info(s"arg: $arg")
   }
-  val storageAccountConnectionString = args(args.length - 2)
 
-  val clientNames = args.last
-  val clientNamesArray: Array[String] = clientNames.split(",").map(x => x.toLowerCase())
-  val clientName = clientNamesArray(0) //first client name will be the output fs name
+  val egDataFullPath = args(0)
+  val customerInput = args(1)
+  val output = args(2)
+  val storageAccountConnectionString = args(3)
+  val clientName = "customer1"
+
 
   private val builder = SparkSession.builder()
     .appName(s"WC-$clientName-${System.currentTimeMillis()}")
@@ -67,36 +66,32 @@ object WordCountGen1MultipleSPs extends App {
 
   val spark: SparkSession = builder.getOrCreate()
 
-  logger.info(s"-----------  Printing Spark configurations  -----------")
-  spark.conf.getAll.foreach(x => logger.info(s"${x._1} -> ${x._2}"))
+  logger.debug(s"-----------  Printing Spark configurations  -----------")
+  spark.conf.getAll.foreach(x => logger.debug(s"${x._1} -> ${x._2}"))
 
   val sc = spark.sparkContext
-  logger.info(s"===========  Printing Hadoop configurations  ===========")
+  logger.debug(s"===========  Printing Hadoop configurations  ===========")
   sc.hadoopConfiguration.forEach(new Consumer[Map.Entry[String, String]] {
     override def accept(kvp: util.Map.Entry[String, String]): Unit = {
-      logger.info(s"${kvp.getKey} => ${kvp.getValue}")
+      logger.debug(s"${kvp.getKey} => ${kvp.getValue}")
     }
   })
 
   var inputs: RDD[String] = sc.emptyRDD[String]
-  val egDataFullPath = args(0)
   logger.info(s"In application ${sc.applicationId}: Get EG data path $egDataFullPath")
   val eg: RDD[String] = sc.textFile(egDataFullPath)
   logger.info(s"Input Data - EG: ${eg.collect().mkString("\n")}")
   inputs = inputs.union(eg)
 
-  for (inputPathPart <- args.tail.dropRight(3)) {
-    val path = s"abfss://$clientName@$inputPathPart"
-    logger.info(s"Get Raw data full path: $path")
-    val raw = sc.textFile(path)
-    logger.info(s"Input Data - Raw: ${raw.collect().mkString("\n")}")
-    inputs = inputs.union(raw)
-  }
+  val path = s"abfss://$clientName@$customerInput"
+  logger.info(s"Get Raw data full path: $path")
+  val raw = sc.textFile(path)
+  logger.info(s"Input Data - Raw: ${raw.collect().mkString("\n")}")
+  inputs = inputs.union(raw)
 
   logger.info(s"Input Data - All: ${inputs.collect().mkString("\n")}")
 
-  val dest = s"abfss://$clientName@${args(args.length - 3)}"
-  val outputDir = new Path(dest, System.currentTimeMillis.toString)
+  val outputDir = new Path(s"abfss://$clientName@$output", System.currentTimeMillis.toString)
   logger.info(s"Will save output to: $outputDir")
 
   val counts: RDD[(String, Int)] = inputs.flatMap(line => line.split(" "))
