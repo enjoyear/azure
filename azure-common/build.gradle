@@ -1,4 +1,5 @@
 dependencies {
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
 //    compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.62'
 //    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.62'
 }

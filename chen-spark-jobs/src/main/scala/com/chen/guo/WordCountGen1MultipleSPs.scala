@@ -5,6 +5,7 @@ import java.util.Map
 import java.util.function.Consumer
 
 import com.chen.guo.auth.CredentialsFileProvider
+import com.chen.guo.command.YarnCommandLineParser
 import com.chen.guo.db.fakedCosmos
 import org.apache.hadoop.fs.Path
 import org.apache.log4j.{Level, LogManager}
@@ -12,17 +13,29 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import org.slf4j.{Logger, LoggerFactory, MDC}
 
+import scala.collection.JavaConverters._
+
 object WordCountGen1MultipleSPs extends App {
   val pipelineRunId = args(4)
   MDC.put("pipeline_runid", pipelineRunId)
-  MDC.put("activity_runid", "activity")
-
   val logger: Logger = LoggerFactory.getLogger(getClass.getName)
+  val yarnAMCommand = System.getProperty("sun.java.command")
+  logger.info(yarnAMCommand)
+  MDC.put("activity_runid", YarnCommandLineParser.getActivityId(yarnAMCommand))
+
   LogManager.getRootLogger.setLevel(Level.DEBUG)
   LogManager.getLogger("log4j.logger.org.apache.hadoop.fs").setLevel(Level.DEBUG)
 
   for (arg <- args) {
     logger.info(s"arg: $arg")
+  }
+
+  for (prop <- System.getProperties.entrySet().asScala) {
+    logger.info(s"Sys Prop: ${prop.getKey} -> ${prop.getValue}")
+  }
+
+  for (prop <- System.getenv().asScala) {
+    logger.info(s"Sys Env: ${prop._1} -> ${prop._2}")
   }
 
   val egDataFullPath = args(0)
@@ -66,14 +79,14 @@ object WordCountGen1MultipleSPs extends App {
 
   val spark: SparkSession = builder.getOrCreate()
 
-  logger.debug(s"-----------  Printing Spark configurations  -----------")
-  spark.conf.getAll.foreach(x => logger.debug(s"${x._1} -> ${x._2}"))
+  logger.info(s"-----------  Printing Spark configurations  -----------")
+  spark.conf.getAll.foreach(x => logger.info(s"${x._1} -> ${x._2}"))
 
   val sc = spark.sparkContext
-  logger.debug(s"===========  Printing Hadoop configurations  ===========")
+  logger.info(s"===========  Printing Hadoop configurations  ===========")
   sc.hadoopConfiguration.forEach(new Consumer[Map.Entry[String, String]] {
     override def accept(kvp: util.Map.Entry[String, String]): Unit = {
-      logger.debug(s"${kvp.getKey} => ${kvp.getValue}")
+      logger.info(s"${kvp.getKey} => ${kvp.getValue}")
     }
   })
 

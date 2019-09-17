@@ -12,7 +12,7 @@ dependencies {
 
 shadowJar {
     //relocate 'okio', 'chguo.okio'
-    // relocate 'com.google.common.base', 'chguo.com.google.common.base'
+     relocate 'org.apache.commons.cli', 'chguo.org.apache.commons.cli'
 //    dependencies {
 //        exclude(dependency('com.squareup.okio:okio:1.15.0'))
 //    }
