@@ -32,8 +32,8 @@ object SparkWordCount extends App {
     .map(word => (word, 1))
     .reduceByKey(_ + _)
 
-  val dest = args(1)
-  val outputDir = new Path(dest, System.currentTimeMillis.toString)
+  logger.info(counts.collect().mkString("\n"))
+  val outputDir = new Path(args(1), System.currentTimeMillis.toString)
   logger.info(s"Saving output to: $outputDir")
 
   counts.coalesce(1).saveAsTextFile(outputDir.toString)
@@ -44,7 +44,10 @@ object SparkWordCount extends App {
   val credentials = new ICredentialProvider() {
     override def getClientCredential(clientName: String): ClientCredential = {
       val clientId = "48292e29-b7f5-49c1-bc1a-f29be8b362c8"
-      val clientSecret = sc.hadoopConfiguration.get("spark.k2.spi-cdppoc-ei.secret")
+      val clientSecret = sc.hadoopConfiguration.get("fs.adl.oauth2.credential")
+      if (clientSecret == null) {
+        throw new RuntimeException("Failed to get SP secret")
+      }
       new ClientCredential(clientId, clientSecret)
     }
 
@@ -53,7 +56,7 @@ object SparkWordCount extends App {
     override def getSubscriptionId: String = "c3b5358d-d824-450c-badc-734462b9bbf1"
   }
 
-//  val kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, "spi-cdppoc-ei"))
-//  val secret = kvClient.getSecret(vaultURL, "dummy-key")
-//  logger.info("Fetched secret for dummy-key: " + secret.value)
+  val kvClient = new KeyVaultClient(KeyVaultADALAuthenticator.createCredentials(credentials, "spi-cdppoc-ei"))
+  val secret = kvClient.getSecret(vaultURL, "dummy-key")
+  logger.info("Fetched secret for dummy-key: " + secret.value)
 }
