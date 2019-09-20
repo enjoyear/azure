@@ -7,6 +7,7 @@ import java.util.function.Consumer
 import com.chen.guo.auth.CredentialsFileProvider
 import com.chen.guo.command.YarnCommandLineParser
 import com.chen.guo.db.fakedCosmos
+import com.chen.guo.fun.WebsiteReader
 import org.apache.hadoop.fs.Path
 import org.apache.log4j.{Level, LogManager}
 import org.apache.spark.rdd.RDD
@@ -16,19 +17,24 @@ import org.slf4j.{Logger, LoggerFactory, MDC}
 import scala.collection.JavaConverters._
 
 object WordCountGen1MultipleSPs extends App {
+  val logger: Logger = LoggerFactory.getLogger(getClass.getName)
+  for (arg <- args) {
+    logger.info(s"arg: $arg")
+  }
+
+  if (!args(5).trim.isEmpty) {
+    logger.info(s"Reading ${args(5).trim}")
+    WebsiteReader.readWebsite(args(5).trim)
+  }
+
   val pipelineRunId = args(4)
   MDC.put("pipeline_runid", pipelineRunId)
-  val logger: Logger = LoggerFactory.getLogger(getClass.getName)
   val yarnAMCommand = System.getProperty("sun.java.command")
   logger.info(yarnAMCommand)
   MDC.put("activity_runid", YarnCommandLineParser.getActivityId(yarnAMCommand))
 
   LogManager.getRootLogger.setLevel(Level.DEBUG)
   LogManager.getLogger("log4j.logger.org.apache.hadoop.fs").setLevel(Level.DEBUG)
-
-  for (arg <- args) {
-    logger.info(s"arg: $arg")
-  }
 
   for (prop <- System.getProperties.entrySet().asScala) {
     logger.info(s"Sys Prop: ${prop.getKey} -> ${prop.getValue}")
