@@ -1,8 +1,8 @@
 rootProject.name = 'azure'
 
+include 'util'
 include 'azure-common'
 include 'chen-mr-jobs'
 include 'chen-spark-jobs'
 include 'azure-util'
-include 'fun'
 include 'scheduler'

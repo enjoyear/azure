@@ -1,7 +1,5 @@
 package com.chen.guo
 
-import java.util
-import java.util.Map
 import java.util.function.Consumer
 
 import com.chen.guo.auth.CredentialsFileProvider
@@ -90,8 +88,8 @@ object WordCountGen1MultipleSPs extends App {
 
   val sc = spark.sparkContext
   logger.info(s"===========  Printing Hadoop configurations  ===========")
-  sc.hadoopConfiguration.forEach(new Consumer[Map.Entry[String, String]] {
-    override def accept(kvp: util.Map.Entry[String, String]): Unit = {
+  sc.hadoopConfiguration.forEach(new Consumer[java.util.Map.Entry[String, String]] {
+    override def accept(kvp: java.util.Map.Entry[String, String]): Unit = {
       logger.info(s"${kvp.getKey} => ${kvp.getValue}")
     }
   })

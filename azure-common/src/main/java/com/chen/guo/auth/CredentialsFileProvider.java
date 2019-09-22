@@ -2,6 +2,7 @@ package com.chen.guo.auth;
 
 import com.chen.guo.auth.security.KeyVaultADALAuthenticator;
 import com.chen.guo.storage.BlobBasics;
+import com.chen.guo.util.PropertyFileLoader;
 import com.microsoft.aad.adal4j.ClientCredential;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.models.SecretBundle;
@@ -10,7 +11,9 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.rest.credentials.ServiceClientCredentials;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.Properties;
@@ -20,7 +23,7 @@ public class CredentialsFileProvider implements ICredentialProvider {
   private final Properties _credentialFile;
 
   public CredentialsFileProvider(String propertiesFile) {
-    _credentialFile = loadCredentials(propertiesFile);
+    _credentialFile = PropertyFileLoader.load(propertiesFile);
   }
 
   public CredentialsFileProvider(Reader content) {
@@ -43,17 +46,6 @@ public class CredentialsFileProvider implements ICredentialProvider {
   @Override
   public String getSubscriptionId() {
     return _credentialFile.getProperty("azure.subscription.id");
-  }
-
-  public Properties loadCredentials(String propertiesFile) {
-    try (InputStream input = new FileInputStream(propertiesFile)) {
-
-      Properties prop = new Properties();
-      prop.load(input);
-      return prop;
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
   }
 
   public Properties loadCredentials(Reader content) {

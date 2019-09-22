@@ -1,2 +1,11 @@
 dependencies {
+    compile project(':util')
+
+    compile deps.commonsDbcp2
+    compile deps.commonsDbutils
+    compile deps.mysqlConnector
+    compile deps.quartz
+
+    compile group: 'com.microsoft.azure', name: 'azure-cosmosdb', version: '2.6.1'
+
 }

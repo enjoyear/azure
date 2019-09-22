@@ -4,6 +4,24 @@ plugins {
     id 'scala'
 }
 
+ext.versions = [
+        hadoop: '2.7.3.2.6.5.3008-11',
+        slf4j : '1.7.28'
+]
+
+ext.deps = [
+        commonsCli    : 'commons-cli:commons-cli:1.4',
+        commonsDbcp2  : 'org.apache.commons:commons-dbcp2:2.7.0',
+        commonsDbutils: 'commons-dbutils:commons-dbutils:1.7',
+
+        mysqlConnector: 'mysql:mysql-connector-java:8.0.17',
+
+        quartz        : 'org.quartz-scheduler:quartz:2.3.1',
+
+        slf4jApi      : 'org.slf4j:slf4j-api:' + versions.slf4j,
+        slf4jLog4j12  : 'org.slf4j:slf4j-log4j12:' + versions.slf4j,
+]
+
 allprojects {
     buildscript {
         repositories {
@@ -54,9 +72,8 @@ allprojects {
         compile group: 'com.microsoft.azure', name: 'azure-storage', version: '7.0.0'
 
         //https://www.slf4j.org/manual.html
-        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.28'
-        compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.28'
-        //compile group: 'log4j', name: 'log4j', version: '1.2.17'
+        compile deps.slf4jApi
+        compile deps.slf4jLog4j12
 
         compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure', version: '2.7.3.2.6.5.3008-11'
         compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure-datalake', version: '2.7.3.2.6.5.3008-11'
