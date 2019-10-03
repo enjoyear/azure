@@ -1,7 +1,5 @@
 package com.chen.guo
 
-import java.util.Random
-
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -39,7 +37,9 @@ object SparkWordCount extends App {
   val outputDir = new Path(dest, System.currentTimeMillis.toString)
   println(s"Saving output to: $outputDir")
 
-  Thread.sleep(1000 * new Random().nextInt(60))
+  val sleep: Integer = Integer.valueOf(args(args.length - 1))
+  println(s"Will sleep for ${sleep} seconds")
+  Thread.sleep(1000 * sleep)
   counts.coalesce(1).saveAsTextFile(outputDir.toString)
   println("Done")
 }
