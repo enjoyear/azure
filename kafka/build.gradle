@@ -1,0 +1,9 @@
+dependencies {
+    compile project(':util')
+
+    compile deps.commonsDbcp2
+
+    compile deps.kafka09
+    compile deps.kafka09Client
+
+}
