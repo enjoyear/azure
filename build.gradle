@@ -4,27 +4,24 @@ plugins {
   id 'scala'
 }
 
-ext.versions = [
-    hadoop        : '2.7.3.2.6.5.3008-11',
-    slf4j         : '1.7.28',
-    kafka09Version: '0.9.0.1'
-]
+ext.versions = [hadoop        : '2.7.3.2.6.5.3008-11',
+                slf4j         : '1.7.28',
+                kafka09Version: '0.9.0.1']
 
-ext.deps = [
-    commonsCli    : 'commons-cli:commons-cli:1.4',
-    commonsDbcp2  : 'org.apache.commons:commons-dbcp2:2.7.0',
-    commonsDbutils: 'commons-dbutils:commons-dbutils:1.7',
+ext.deps = [commonsCli    : 'commons-cli:commons-cli:1.4',
+            commonsDbcp2  : 'org.apache.commons:commons-dbcp2:2.7.0',
+            commonsIo     : 'commons-io:commons-io:2.4',
+            commonsDbutils: 'commons-dbutils:commons-dbutils:1.7',
 
-    kafka09       : "org.apache.kafka:kafka_2.11:" + versions.kafka09Version,
-    kafka09Client       : "org.apache.kafka:kafka-clients:" + versions.kafka09Version,
+            kafka09       : "org.apache.kafka:kafka_2.11:" + versions.kafka09Version,
+            kafka09Client : "org.apache.kafka:kafka-clients:" + versions.kafka09Version,
 
-    mysqlConnector: 'mysql:mysql-connector-java:8.0.17',
+            mysqlConnector: 'mysql:mysql-connector-java:8.0.17',
 
-    quartz        : 'org.quartz-scheduler:quartz:2.3.1',
+            quartz        : 'org.quartz-scheduler:quartz:2.3.1',
 
-    slf4jApi      : 'org.slf4j:slf4j-api:' + versions.slf4j,
-    slf4jLog4j12  : 'org.slf4j:slf4j-log4j12:' + versions.slf4j,
-]
+            slf4jApi      : 'org.slf4j:slf4j-api:' + versions.slf4j,
+            slf4jLog4j12  : 'org.slf4j:slf4j-log4j12:' + versions.slf4j,]
 
 allprojects {
   buildscript {
