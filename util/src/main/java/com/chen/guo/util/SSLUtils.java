@@ -41,11 +41,12 @@ public class SSLUtils {
     String securityProtocol = "SSL";
     String sslProtocol = "TLS";
 
-    String keyStoreLocation = "/export/content/lid/apps/k2-gobblin-service-deployable/i001/var/identity.p12";
+    String keyStoreLocation = "/Users/chguo/Downloads/identity.p12";
     String keyStorePassword = "work_around_jdk-6879539";
     String keyStoreType = "pkcs12";
     String keyManagerAlgorithm = "SunX509";
 
+    //String trustStoreLocation = "/Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/jre/lib/security/cacerts";
     String trustStoreLocation = "/etc/riddler/cacerts";
     String trustStorePassword = "changeit";
     String trustStoreType = "JKS";
@@ -73,7 +74,7 @@ public class SSLUtils {
     log.info("Set context with security protocol");
     final SSLContext secureContext = SSLContext.getInstance(sslProtocol);
     secureContext
-        .init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom(secureRandomImplmentation.getBytes()));
+        .init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
     return secureContext;
   }
 
