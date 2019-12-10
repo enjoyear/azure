@@ -46,10 +46,17 @@ allprojects {
   repositories {
     mavenCentral()
     maven {
+      //For HDInsight jars
       url "https://repo.hortonworks.com/content/repositories/releases/"
     }
     maven {
       url "https://repo.spring.io/plugins-release/"
+    }
+    maven {
+      //For io.confluent
+      // The ICM Repository is not working.
+      // Using this repo, https://stackoverflow.com/questions/43488853/confluent-maven-repository-not-working
+      url "http://packages.confluent.io/maven/"
     }
   }
 

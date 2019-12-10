@@ -1,9 +1,12 @@
 dependencies {
-    compile project(':util')
+  compile project(':util')
 
-    compile deps.commonsDbcp2
+  compile deps.commonsDbcp2
 
-    compile deps.kafka09
-    compile deps.kafka09Client
-
+  compile deps.kafka09
+  compile deps.kafka09Client
+  compile group: 'io.confluent', name: 'kafka-avro-serializer', version: '2.0.1'
+  compile group: 'io.confluent', name: 'kafka-schema-registry-client', version: '2.0.1'
+//  compile group: 'org.apache.gobblin', name: 'gobblin-metrics-base', version: '0.14.0'
+//  compile group: 'org.apache.gobblin', name: 'gobblin-runtime', version: '0.14.0'
 }
