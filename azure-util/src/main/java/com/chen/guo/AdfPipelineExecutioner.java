@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
  * Doc:
  * https://docs.microsoft.com/en-us/azure/data-factory/quickstart-create-data-factory-rest-api
  */
-public class ADFPipelineExecutioner {
+public class AdfPipelineExecutioner {
   private final ICredentialProvider _credentials;
   private final String _resourceGroupName;
   private final String _dataFactoryName;
@@ -42,7 +42,7 @@ public class ADFPipelineExecutioner {
   private static final String apiVersion20180601Preview = "?api-version=2018-06-01-preview";
   private final String _hdinsightTemplate;
 
-  public ADFPipelineExecutioner(ICredentialProvider credentials, String resourceGroupName, String dataFactoryName) {
+  public AdfPipelineExecutioner(ICredentialProvider credentials, String resourceGroupName, String dataFactoryName) {
     _credentials = credentials;
     _resourceGroupName = resourceGroupName;
     _dataFactoryName = dataFactoryName;
@@ -76,7 +76,7 @@ public class ADFPipelineExecutioner {
     String resourceGroupName = "demo";
     String datafactoryName = "Data-Factory-demo";
 
-    ADFPipelineExecutioner executioner = new ADFPipelineExecutioner(credentials, resourceGroupName, datafactoryName);
+    AdfPipelineExecutioner executioner = new AdfPipelineExecutioner(credentials, resourceGroupName, datafactoryName);
     try {
       HttpUriRequest request = executioner.executePipeline(token, "spark-only3");
       //HttpUriRequest request = executioner.getPipelineRunStatus(token, "24156418-335f-4337-a9f8-804ddb7274e9");

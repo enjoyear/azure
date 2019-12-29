@@ -1,5 +1,12 @@
 package com.chen.guo.auth;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.util.Properties;
+
 import com.chen.guo.auth.security.KeyVaultADALAuthenticator;
 import com.chen.guo.storage.BlobBasics;
 import com.chen.guo.util.PropertyFileLoader;
@@ -11,15 +18,12 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.rest.credentials.ServiceClientCredentials;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.Properties;
+import lombok.Getter;
+
 
 public class CredentialsFileProvider implements ICredentialProvider {
   public final static String CLIENT_PREFIX = "azure.sp.";
+  @Getter
   private final Properties _credentialFile;
 
   public CredentialsFileProvider(String propertiesFile) {
@@ -34,7 +38,8 @@ public class CredentialsFileProvider implements ICredentialProvider {
   public ClientCredential getClientCredential(String clientName) {
     String clientId = getClientId(clientName);
     String clientSecret = getClientSecret(clientName);
-    System.out.println(String.format("Read credential file: id %s, secret %s for client %s", clientId, clientSecret, clientName));
+    System.out.println(
+        String.format("Read credential file: id %s, secret %s for client %s", clientId, clientSecret, clientName));
     return new ClientCredential(clientId, clientSecret);
   }
 
@@ -70,7 +75,8 @@ public class CredentialsFileProvider implements ICredentialProvider {
    * Instead of passing the storageAccountConnectionString,
    * the akv-reader's id and secret need to be passed in in production.
    */
-  public static String getSecretFromSA(String storageAccountConnectionString, String secretName) throws URISyntaxException, InvalidKeyException, StorageException, IOException {
+  public static String getSecretFromSA(String storageAccountConnectionString, String secretName)
+      throws URISyntaxException, InvalidKeyException, StorageException, IOException {
     System.out.println(String.format("Storage Account Connection String: %s", storageAccountConnectionString));
     CloudBlobContainer container = new BlobBasics(storageAccountConnectionString).getBlobContainer("demo-jars");
     CloudBlockBlob blockRef = container.getBlockBlobReference("properties/azure_credentials.properties");
