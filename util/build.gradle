@@ -1,3 +1,5 @@
 dependencies {
   compile deps.commonsIo
+  compile "org.codehaus.groovy:groovy-all:2.4.4"
+  compile "org.apache.ivy:ivy:2.4.0"
 }
