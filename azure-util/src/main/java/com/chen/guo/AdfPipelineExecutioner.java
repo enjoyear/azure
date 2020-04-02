@@ -87,9 +87,9 @@ public class AdfPipelineExecutioner {
     try {
 //      HttpUriRequest request = executioner.executePipeline(token, "spark-only3");
       //HttpUriRequest request = executioner.getPipelineRunStatus(token, "24156418-335f-4337-a9f8-804ddb7274e9");
-      //HttpUriRequest request = executioner.getPipelineActivityRuns(token, "ddb03ce9-b70e-444f-ac83-be72379eff11");
+      HttpUriRequest request = executioner.getPipelineActivityRuns(token, "f691422e-f275-4f3d-856b-4b432297c3d7");
       //HttpUriRequest request = executioner.requestHDInsightInfo(token, "s8c7205f8-081e-49c6-a4fa-3d8528be2c0e");
-      HttpUriRequest request = executioner.queryPipelineExecutions(token);
+      //HttpUriRequest request = executioner.queryPipelineExecutions(token);
 
       HttpResponse response = httpclient.execute(request);
       HttpEntity entity = response.getEntity();
@@ -138,7 +138,7 @@ public class AdfPipelineExecutioner {
   }
 
   /**
-   * get activity runs for a specific pipeline run
+   * get activity runs for a specific pipeline runPlugins
    * https://docs.microsoft.com/en-us/rest/api/datafactory/activityruns/querybypipelinerun
    */
   private HttpUriRequest getPipelineActivityRuns(AuthenticationResult token, String pipelineRunId)
@@ -174,7 +174,7 @@ public class AdfPipelineExecutioner {
 //    parameters.setLastUpdatedBefore("2020-03-19T19:49:48.3686473Z");
 
     parameters.setLastUpdatedAfter(DateUtil.localToUTCDatetimeString(2020, 2, 19, 14, 24, 34));
-    parameters.setLastUpdatedBefore(DateUtil.localToUTCDatetimeString(2020, 2, 19, 14, 26, 36));
+    parameters.setLastUpdatedBefore(DateUtil.localToUTCDatetimeString(2020, 2, 20, 14, 26, 36));
 
 //    RunFilterParameters.RunQueryFilter filter =
 //        new RunFilterParameters.RunQueryFilter(RunFilterParameters.RunQueryFilter.RunQueryFilterOperand.PipelineName,
