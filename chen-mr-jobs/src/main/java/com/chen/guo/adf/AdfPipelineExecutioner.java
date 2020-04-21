@@ -1,4 +1,4 @@
-package com.chen.guo;
+package com.chen.guo.adf;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -21,8 +21,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import com.chen.guo.adf.DateUtil;
-import com.chen.guo.adf.RunFilterParameters;
 import com.chen.guo.auth.AuthenticationHelper;
 import com.chen.guo.auth.CredentialsFileProvider;
 import com.chen.guo.auth.ICredentialProvider;

@@ -1,15 +1,20 @@
-package com.chen.guo;
-
-import com.chen.guo.storage.BlobBasics;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.*;
-import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
+package com.chen.guo.storage;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.Date;
 import java.util.Iterator;
+
+import org.joda.time.DateTime;
+
+import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.BlobProperties;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlobDirectory;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.microsoft.azure.storage.blob.ListBlobItem;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * See examples here
