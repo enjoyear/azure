@@ -34,7 +34,7 @@ public class HadoopWordCount {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
 
-    for (int i = 0; i < otherArgs.length - 2; i++) {
+    for (int i = 0; i < otherArgs.length - 1; i++) {
       Path path = new Path(otherArgs[i]);
       System.out.println(String.format("Input path: %s", path.toString()));
       FileInputFormat.addInputPath(job, path);
