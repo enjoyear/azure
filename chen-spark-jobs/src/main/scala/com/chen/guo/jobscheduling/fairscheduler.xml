@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<allocations>
-  <pool name="sharedPool">
-    <schedulingMode>FAIR</schedulingMode>
-    <weight>1</weight>
-    <minShare>1</minShare>
-  </pool>
-</allocations>
