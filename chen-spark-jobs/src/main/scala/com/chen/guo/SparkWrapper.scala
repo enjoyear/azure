@@ -18,6 +18,6 @@ object SparkWrapper extends App {
       .getOrCreate()
 
   println("Starting actual Spark job")
-  new SparkWordCount(ss, args).run()
+  new SparkInternal(ss, args).run()
   println("Internal job completed")
 }
