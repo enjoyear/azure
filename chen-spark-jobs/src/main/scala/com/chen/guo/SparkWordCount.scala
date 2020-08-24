@@ -8,6 +8,9 @@ import org.slf4j.{Logger, LoggerFactory}
 object SparkWordCount extends App {
   val logger: Logger = LoggerFactory.getLogger(getClass.getName)
 
+  logger.info("logger.info Starting...")
+  println("println Starting...")
+
   for (arg <- args) {
     println(s"arg: $arg")
   }
