@@ -1,0 +1,5 @@
+dependencies {
+  compile project(':util')
+
+  compile group: 'org.apache.zookeeper', name: 'zookeeper', version: '3.4.10', ext: 'pom'
+}
