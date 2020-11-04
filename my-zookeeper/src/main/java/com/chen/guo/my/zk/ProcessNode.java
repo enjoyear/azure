@@ -27,12 +27,12 @@ public class ProcessNode implements Runnable {
   public static final String NODEDATA_KEY_IS_LEADER = "IsLeader";
   public static final int DEFAULT_SESSION_TIMEOUT = 10000;
   private static final String LEADER_ELECTION_ROOT_NODE = "/leader-election";
+  private static final String EPHMERAL_NODE_PREFIX = LEADER_ELECTION_ROOT_NODE + "/proc_";
 
   private final String processId; //the id for current process/service
   private final ZooKeeper zooKeeper;
   private final List<ACL> acl;
   //The path prefix for the ephemeral node created by ZK for current process/service
-  private final String ephemeralNodePathPrefix;
 
   //the path to the ephemeral node created for current process/service
   private String ephemeralNodePath;
@@ -49,31 +49,30 @@ public class ProcessNode implements Runnable {
     this.zooKeeper = new ZooKeeper(zkConnString, DEFAULT_SESSION_TIMEOUT, null);
     log.info("Created zookeeper handle for " + zkConnString);
     this.acl = ZooDefs.Ids.OPEN_ACL_UNSAFE;
-    this.ephemeralNodePathPrefix = String.format("%s/srv_%s_", LEADER_ELECTION_ROOT_NODE, processId);
   }
 
   @Override
   public void run() {
-    log.info(String.format("Process %s started...", processId));
+    log.info(getName() + " started...");
     final byte[] emptyData = new byte[0];
 
     try {
       //Create the permanent ROOT node if not exist
       Stat nodeStat = this.zooKeeper.exists(LEADER_ELECTION_ROOT_NODE, false);
       if (nodeStat == null) {
-        log.info("Leader election root node doesn't exist. Creating node " + LEADER_ELECTION_ROOT_NODE);
+        log.info(getName() + ": leader election root node doesn't exist. Creating node " + LEADER_ELECTION_ROOT_NODE);
         this.zooKeeper.create(LEADER_ELECTION_ROOT_NODE, emptyData, this.acl, CreateMode.PERSISTENT);
-        log.info("Leader election root node created.");
+        log.info(getName() + ": leader election root node created.");
       }
 
       //Create the ephemeral member node
       this.ephemeralNodePath =
-          this.zooKeeper.create(this.ephemeralNodePathPrefix, emptyData, this.acl, CreateMode.EPHEMERAL_SEQUENTIAL);
+          this.zooKeeper.create(EPHMERAL_NODE_PREFIX, emptyData, this.acl, CreateMode.EPHEMERAL_SEQUENTIAL);
       log.info(String.format("Ephemeral node %s created for the new joined process %s.", ephemeralNodePath, processId));
 
       attemptForLeader();
     } catch (Exception e) {
-      log.error("Process initiation failed.", e);
+      log.error(getName() + " initiation failed.", e);
     }
   }
 
@@ -83,19 +82,19 @@ public class ProcessNode implements Runnable {
    */
   private void attemptForLeader()
       throws KeeperException, InterruptedException, JsonProcessingException {
-    log.info(String.format("Process %s is attempting for a leader role.", this.processId));
+    log.info(String.format("%s is attempting for a leader role.", getName()));
     List<String> childrenNodeSeqNums = this.zooKeeper.getChildren(LEADER_ELECTION_ROOT_NODE, false);
     Collections.sort(childrenNodeSeqNums);
-    log.info(
-        String.format("Process %s sees ephemeral nodes: %s", this.processId, String.join(",", childrenNodeSeqNums)));
+    log.info(String.format("%s sees ephemeral nodes: %s", getName(), String.join(",", childrenNodeSeqNums)));
     //The ephemeral id assigned by ZK for current process/service
     final String procSequenceNum = this.ephemeralNodePath.substring(this.ephemeralNodePath.lastIndexOf('/') + 1);
     int index = childrenNodeSeqNums.indexOf(procSequenceNum);
+    log.info(String.format("Index of %s is %d", getName(), index));
     if (index == 0) {
-      log.info(String.format("Process %s is elected as the new leader.", this.processId));
+      log.info(String.format("%s is elected as the new leader.", getName()));
       electedAsLeader(procSequenceNum);
     } else {
-      log.info(String.format("Process %s is NOT elected as the new leader.", this.processId));
+      log.info(String.format("%s is NOT elected as the new leader.", getName()));
       notElectedAsLeader(childrenNodeSeqNums, procSequenceNum);
     }
   }
@@ -131,12 +130,11 @@ public class ProcessNode implements Runnable {
     String watchedNodePath = LEADER_ELECTION_ROOT_NODE + "/" + watchedNodeSequenceNum;
     // Start watching the "previous" process/service to avoid Herd Effect
     // https://zookeeper.apache.org/doc/r3.5.5/recipes.html#sc_leaderElection
-    log.info(String.format("Process %s will watch the node %s", this.processId, watchedNodePath));
+    log.info(String.format("%s will watch the node %s", getName(), watchedNodePath));
 
-    Stat nodeStat =
-        this.zooKeeper.exists(watchedNodePath, new ProcessEphemeralNodeWatcher(currentProcNodePath, watchedNodePath));
+    Stat nodeStat = this.zooKeeper.exists(watchedNodePath, new ProcessEphemeralNodeWatcher(getName(), watchedNodePath));
     if (nodeStat != null) {
-      log.info(String.format("Process %s started watching %s", this.processId, watchedNodePath));
+      log.info(String.format("%s started watching %s", getName(), watchedNodePath));
 
       Map<String, Object> data = new HashMap<>();
       data.put(NODEDATA_KEY_CURRENT_PROCESS, this.processId);
@@ -146,31 +144,38 @@ public class ProcessNode implements Runnable {
       this.zooKeeper.setData(currentProcNodePath, ephemeralData, -1);
     } else {
       //TODO: possibility should be extremely low
-      throw new RuntimeException(String.format(
-          "Process %s finds the ephemeral node %s lost between this.zooKeeper.getChildren and this.zooKeeper.exists",
-          this.processId, watchedNodeSequenceNum));
+      throw new RuntimeException(String
+          .format("%s finds the ephemeral node %s lost between this.zooKeeper.getChildren and this.zooKeeper.exists",
+              getName(), watchedNodeSequenceNum));
     }
+  }
+
+  /**
+   * @return a name for current process with node path
+   */
+  private String getName() {
+    return String
+        .format("Proc %s(node %s)", this.processId, this.ephemeralNodePath == null ? "n/a" : this.ephemeralNodePath);
   }
 
   public class ProcessEphemeralNodeWatcher implements Watcher {
 
-    private final String currentNodePath;
+    private final String name;
     private final String watchedNodePath;
 
     /**
-     * @param currentNodePath the path to the ephemeral node created for current process
+     * @param name the name for current process with node path
      * @param watchedNodePath the path to the ephemeral node under monitoring
      */
-    public ProcessEphemeralNodeWatcher(String currentNodePath, String watchedNodePath) {
-      this.currentNodePath = currentNodePath;
+    public ProcessEphemeralNodeWatcher(String name, String watchedNodePath) {
+      this.name = name;
       this.watchedNodePath = watchedNodePath;
     }
 
     @Override
     public void process(WatchedEvent event) {
       final Event.EventType eventType = event.getType();
-      log.info(
-          String.format("Process %s(node %s) received event: %s", this.currentNodePath, processId, event.toString()));
+      log.info(String.format("%s received event: %s", this.name, event.toString()));
 
       //If the watched service/node is lost, then current service/process should attempt for a leader role
       if (Event.EventType.NodeDeleted.equals(eventType)) {
@@ -178,20 +183,19 @@ public class ProcessNode implements Runnable {
           attemptForLeader();
         } catch (Exception e) {
           final String error = String
-              .format("Process %s watcher failed while attempting for a leader role due to:%s", processId,
-                  e.getMessage());
+              .format("%s watcher failed while attempting for a leader role due to:%s", this.name, e.getMessage());
           log.error(error);
           throw new RuntimeException(error, e);
         }
       } else {
-        log.info(String
-            .format("Process %s will re-watch %s due to event %s", processId, this.watchedNodePath, event.toString()));
+        log.info(
+            String.format("%s will re-watch %s due to event %s", this.name, this.watchedNodePath, event.toString()));
         try {
           zooKeeper.exists(this.watchedNodePath, this);
         } catch (Exception e) {
           final String error = String
-              .format("Process %s watcher failed while trying to re-watch %s due to:%s", processId,
-                  this.watchedNodePath, e.getMessage());
+              .format("%s watcher failed while trying to re-watch %s due to:%s", this.name, this.watchedNodePath,
+                  e.getMessage());
           log.error(error);
           throw new RuntimeException(error, e);
         }
