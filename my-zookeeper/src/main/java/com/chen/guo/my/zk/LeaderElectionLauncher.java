@@ -1,10 +1,8 @@
 package com.chen.guo.my.zk;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,13 +16,8 @@ public class LeaderElectionLauncher {
 
     final ExecutorService service = Executors.newSingleThreadExecutor();
 
-    final Future<?> status = service.submit(new ProcessNode("123", ZK_CONNECTION_STRING));
-
-    try {
-      status.get();
-    } catch (InterruptedException | ExecutionException e) {
-      log.error(e.getMessage(), e);
-      service.shutdown();
+    for (int i = 0; i < 5; ++i) {
+      service.submit(new ProcessNode("task" + i, ZK_CONNECTION_STRING));
     }
   }
 }
