@@ -16,13 +16,13 @@ public class LeaderElectionLauncher {
   public static void main(String[] args)
       throws IOException {
     Scanner scanner = new Scanner(System.in);
-    System.out.println("Enter task name: ");
-    String taskName = scanner.nextLine();
-    System.out.println("Task name is: " + taskName);
+    System.out.println("Enter service/machine name: ");
+    String serviceMachineName = scanner.nextLine();
+    System.out.println("Service/machine name is: " + serviceMachineName);
 
     //Shouldn't be cached thread as it will ignore spawned background thread.
     final ExecutorService service = Executors.newSingleThreadExecutor();
 
-    final Future<?> submit = service.submit(new ProcessNode(taskName, ZK_CONNECTION_STRING));
+    final Future<?> submit = service.submit(new ProcessNode(serviceMachineName, ZK_CONNECTION_STRING));
   }
 }

@@ -53,16 +53,17 @@ public class ProcessNode implements Runnable {
 
   @Override
   public void run() {
-    log.info(getName() + " started...");
+    log.info(getProcAndNodeName() + " started...");
     final byte[] emptyData = new byte[0];
 
     try {
       //Create the permanent ROOT node if not exist
       Stat nodeStat = this.zooKeeper.exists(LEADER_ELECTION_ROOT_NODE, false);
       if (nodeStat == null) {
-        log.info(getName() + ": leader election root node doesn't exist. Creating node " + LEADER_ELECTION_ROOT_NODE);
+        log.info(getProcAndNodeName() + ": leader election root node doesn't exist. Creating node "
+            + LEADER_ELECTION_ROOT_NODE);
         this.zooKeeper.create(LEADER_ELECTION_ROOT_NODE, emptyData, this.acl, CreateMode.PERSISTENT);
-        log.info(getName() + ": leader election root node created.");
+        log.info(getProcAndNodeName() + ": leader election root node created.");
       }
 
       //Create the ephemeral member node
@@ -72,7 +73,7 @@ public class ProcessNode implements Runnable {
 
       attemptForLeader();
     } catch (Exception e) {
-      log.error(getName() + " initiation failed.", e);
+      log.error(getProcAndNodeName() + " initiation failed.", e);
     }
   }
 
@@ -82,19 +83,17 @@ public class ProcessNode implements Runnable {
    */
   private void attemptForLeader()
       throws KeeperException, InterruptedException, JsonProcessingException {
-    log.info(String.format("%s is attempting for a leader role.", getName()));
+    log.info(String.format("%s is attempting for a leader role.", getProcAndNodeName()));
     List<String> childrenNodeSeqNums = this.zooKeeper.getChildren(LEADER_ELECTION_ROOT_NODE, false);
     Collections.sort(childrenNodeSeqNums);
-    log.info(String.format("%s sees ephemeral nodes: %s", getName(), String.join(",", childrenNodeSeqNums)));
+    log.info(String.format("%s sees ephemeral nodes: %s", getProcAndNodeName(), String.join(",", childrenNodeSeqNums)));
     //The ephemeral id assigned by ZK for current process/service
     final String procSequenceNum = this.ephemeralNodePath.substring(this.ephemeralNodePath.lastIndexOf('/') + 1);
     int index = childrenNodeSeqNums.indexOf(procSequenceNum);
-    log.info(String.format("Index of %s is %d", getName(), index));
+    log.info(String.format("Index of %s is %d", getProcAndNodeName(), index));
     if (index == 0) {
-      log.info(String.format("%s is elected as the new leader.", getName()));
       electedAsLeader(procSequenceNum);
     } else {
-      log.info(String.format("%s is NOT elected as the new leader.", getName()));
       notElectedAsLeader(childrenNodeSeqNums, procSequenceNum);
     }
   }
@@ -105,6 +104,7 @@ public class ProcessNode implements Runnable {
    */
   private void electedAsLeader(String procSequenceNum)
       throws JsonProcessingException, KeeperException, InterruptedException {
+    log.info(String.format("Electing %s the new leader.", getProcAndNodeName()));
     Map<String, Object> data = new HashMap<>();
     data.put(NODEDATA_KEY_CURRENT_PROCESS, this.processId);
     data.put(NODEDATA_KEY_IS_LEADER, true);
@@ -112,6 +112,7 @@ public class ProcessNode implements Runnable {
 
     String currentProcNodePath = LEADER_ELECTION_ROOT_NODE + "/" + procSequenceNum;
     this.zooKeeper.setData(currentProcNodePath, ephemeralData, -1);
+    log.info(String.format("%s is elected as the new leader.", getProcAndNodeName()));
   }
 
   /**
@@ -122,6 +123,7 @@ public class ProcessNode implements Runnable {
    */
   private void notElectedAsLeader(List<String> childrenNodeSeqNums, String procSequenceNum)
       throws KeeperException, InterruptedException, JsonProcessingException {
+    log.info(String.format("%s is NOT elected as the new leader.", getProcAndNodeName()));
     int index = childrenNodeSeqNums.indexOf(procSequenceNum);
     String currentProcNodePath = LEADER_ELECTION_ROOT_NODE + "/" + procSequenceNum;
 
@@ -130,11 +132,12 @@ public class ProcessNode implements Runnable {
     String watchedNodePath = LEADER_ELECTION_ROOT_NODE + "/" + watchedNodeSequenceNum;
     // Start watching the "previous" process/service to avoid Herd Effect
     // https://zookeeper.apache.org/doc/r3.5.5/recipes.html#sc_leaderElection
-    log.info(String.format("%s will watch the node %s", getName(), watchedNodePath));
+    log.info(String.format("%s will watch the node %s", getProcAndNodeName(), watchedNodePath));
 
-    Stat nodeStat = this.zooKeeper.exists(watchedNodePath, new ProcessEphemeralNodeWatcher(getName(), watchedNodePath));
+    Stat nodeStat =
+        this.zooKeeper.exists(watchedNodePath, new ProcessEphemeralNodeWatcher(getProcAndNodeName(), watchedNodePath));
     if (nodeStat != null) {
-      log.info(String.format("%s started watching %s", getName(), watchedNodePath));
+      log.info(String.format("Setting %s to watch %s", getProcAndNodeName(), watchedNodePath));
 
       Map<String, Object> data = new HashMap<>();
       data.put(NODEDATA_KEY_CURRENT_PROCESS, this.processId);
@@ -142,18 +145,20 @@ public class ProcessNode implements Runnable {
       data.put(NODEDATA_KEY_IS_LEADER, false);
       byte[] ephemeralData = JsonUtils.mapToJsonString(data).getBytes();
       this.zooKeeper.setData(currentProcNodePath, ephemeralData, -1);
+      log.info(String.format("%s started watching %s", getProcAndNodeName(), watchedNodePath));
     } else {
-      //TODO: possibility should be extremely low
-      throw new RuntimeException(String
-          .format("%s finds the ephemeral node %s lost between this.zooKeeper.getChildren and this.zooKeeper.exists",
-              getName(), watchedNodeSequenceNum));
+      //possibility of getting here should be extremely low.
+      log.warn(String.format(
+          "%s finds the ephemeral node %s lost between this.zooKeeper.getChildren and this.zooKeeper.exists."
+              + "Attempting for the leader again!!", getProcAndNodeName(), watchedNodeSequenceNum));
+      attemptForLeader();
     }
   }
 
   /**
    * @return a name for current process with node path
    */
-  private String getName() {
+  private String getProcAndNodeName() {
     return String
         .format("Proc %s(node %s)", this.processId, this.ephemeralNodePath == null ? "n/a" : this.ephemeralNodePath);
   }
