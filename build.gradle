@@ -1,20 +1,20 @@
 plugins {
-  id 'idea'
-  id 'java'
-  id 'scala'
+    id 'idea'
+    id 'java'
+    id 'scala'
 }
 
-ext.versions = [hadoop        : '2.7.3.2.6.5.3008-11',
-                slf4j         : '1.7.28',
-                kafka09Version: '0.9.0.1']
+ext.versions = [hadoop: '2.7.3.2.6.5.3008-11',
+                slf4j : '1.7.28',
+                kafka : '2.6.2']
 
 ext.deps = [commonsCli    : 'commons-cli:commons-cli:1.4',
             commonsDbcp2  : 'org.apache.commons:commons-dbcp2:2.7.0',
             commonsIo     : 'commons-io:commons-io:2.4',
             commonsDbutils: 'commons-dbutils:commons-dbutils:1.7',
 
-            kafka09       : "org.apache.kafka:kafka_2.11:" + versions.kafka09Version,
-            kafka09Client : "org.apache.kafka:kafka-clients:" + versions.kafka09Version,
+            kafka         : "org.apache.kafka:kafka_2.12:" + versions.kafka,
+            kafkaClient   : "org.apache.kafka:kafka-clients:" + versions.kafka,
 
             mysqlConnector: 'mysql:mysql-connector-java:8.0.17',
 
@@ -24,74 +24,78 @@ ext.deps = [commonsCli    : 'commons-cli:commons-cli:1.4',
             slf4jLog4j12  : 'org.slf4j:slf4j-log4j12:' + versions.slf4j,]
 
 allprojects {
-  buildscript {
+    buildscript {
+        repositories {
+            maven {
+                url "https://plugins.gradle.org/m2/"
+            }
+        }
+        dependencies {
+            classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
+        }
+    }
+
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: 'scala'
+
+    group 'com.chen.guo'
+    version '1.0-SNAPSHOT'
+    sourceCompatibility = 1.11
+
     repositories {
-      maven {
-        url "https://plugins.gradle.org/m2/"
-      }
+        mavenCentral()
+        maven {
+            //For HDInsight jars
+            url "https://repo.hortonworks.com/content/repositories/releases/"
+        }
+        maven {
+            url "https://repo.spring.io/plugins-release/"
+        }
+        maven {
+            //For io.confluent
+            // The ICM Repository is not working.
+            // Using this repo, https://stackoverflow.com/questions/43488853/confluent-maven-repository-not-working
+            url "http://packages.confluent.io/maven/"
+        }
     }
+
+    sourceSets {
+        main {
+            scala {
+                srcDirs = ['src/main/scala']
+            }
+        }
+        test {
+            scala {
+                srcDirs = ['test/main/scala']
+            }
+        }
+    }
+
     dependencies {
-      classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
+        compile group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+        annotationProcessor 'org.projectlombok:lombok:1.18.20'
+        testCompileOnly 'org.projectlombok:lombok:1.18.20'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+        compile group: 'com.microsoft.azure', name: 'azure-keyvault', version: '1.0.0'
+        compile group: 'com.microsoft.azure', name: 'adal4j', version: '1.6.2'
+        compile group: 'com.microsoft.azure', name: 'azure-storage', version: '7.0.0'
+
+        //https://www.slf4j.org/manual.html
+        compile deps.slf4jApi
+        compile deps.slf4jLog4j12
+
+        compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure', version: '2.7.3.2.6.5.3008-11'
+        compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure-datalake', version: '2.7.3.2.6.5.3008-11'
+        //compileOnly group: 'com.microsoft.azure', name: 'azure-data-lake-store-sdk', version: '2.3.6'
+
+        //The root package: Azure is the entry point for accessing resource management APIs.
+        compileOnly group: 'com.microsoft.azure', name: 'azure', version: '1.24.1'
+
+        implementation 'org.scala-lang:scala-library:2.11.12'
+        testImplementation 'org.scalatest:scalatest_2.11:3.0.0'
+        testImplementation 'junit:junit:4.12'
     }
-  }
-
-  apply plugin: 'idea'
-  apply plugin: 'java'
-  apply plugin: 'scala'
-
-  group 'com.chen.guo'
-  version '1.0-SNAPSHOT'
-  sourceCompatibility = 1.8
-
-  repositories {
-    mavenCentral()
-    maven {
-      //For HDInsight jars
-      url "https://repo.hortonworks.com/content/repositories/releases/"
-    }
-    maven {
-      url "https://repo.spring.io/plugins-release/"
-    }
-    maven {
-      //For io.confluent
-      // The ICM Repository is not working.
-      // Using this repo, https://stackoverflow.com/questions/43488853/confluent-maven-repository-not-working
-      url "http://packages.confluent.io/maven/"
-    }
-  }
-
-  sourceSets {
-    main {
-      scala {
-        srcDirs = ['src/main/scala']
-      }
-    }
-    test {
-      scala {
-        srcDirs = ['test/main/scala']
-      }
-    }
-  }
-
-  dependencies {
-    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.6'
-    compile group: 'com.microsoft.azure', name: 'azure-keyvault', version: '1.0.0'
-    compile group: 'com.microsoft.azure', name: 'adal4j', version: '1.6.2'
-    compile group: 'com.microsoft.azure', name: 'azure-storage', version: '7.0.0'
-
-    //https://www.slf4j.org/manual.html
-    compile deps.slf4jApi
-    compile deps.slf4jLog4j12
-
-    compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure', version: '2.7.3.2.6.5.3008-11'
-    compileOnly group: 'org.apache.hadoop', name: 'hadoop-azure-datalake', version: '2.7.3.2.6.5.3008-11'
-    //compileOnly group: 'com.microsoft.azure', name: 'azure-data-lake-store-sdk', version: '2.3.6'
-
-    //The root package: Azure is the entry point for accessing resource management APIs.
-    compileOnly group: 'com.microsoft.azure', name: 'azure', version: '1.24.1'
-
-    implementation 'org.scala-lang:scala-library:2.11.12'
-    testImplementation 'org.scalatest:scalatest_2.11:3.0.0'
-    testImplementation 'junit:junit:4.12'
-  }
 }
